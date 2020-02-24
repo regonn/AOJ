@@ -1,2 +1,3 @@
-input
-out
+src/input
+src/out
+target/rls*

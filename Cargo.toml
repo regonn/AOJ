@@ -1,0 +1,4 @@
+[package]
+name = "AOJ"
+version = "0.0.1"
+authors = ["Regonn <programmer@haizine.art>"]
