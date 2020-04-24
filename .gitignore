@@ -1,3 +1,4 @@
 src/input
 src/out
 target/rls*
+target/.rustc_info.json
