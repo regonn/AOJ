@@ -25,21 +25,21 @@ fn partition(a: &mut Vec<Card>, p: usize, r: usize) -> usize {
             a.swap(i as usize, j);
         }
     }
-    a.swap((i+1) as usize, r);
+    a.swap((i + 1) as usize, r);
     return (i + 1) as usize;
 }
 
 fn quicksort(a: &mut Vec<Card>, p: usize, r: usize) {
     if p < r {
         let q: usize = partition(a, p, r);
-        if q > 0{
-            quicksort(a, p, q-1);
+        if q > 0 {
+            quicksort(a, p, q - 1);
         }
-        quicksort(a, q+1, r);
+        quicksort(a, q + 1, r);
     }
 }
 
-fn check_stable(a: &Vec<Card>)-> bool {
+fn check_stable(a: &Vec<Card>) -> bool {
     let n = a.len();
     let mut is_bubble_sorted_stable: bool = true;
     for index_i in 0..(n - 2) {
@@ -64,15 +64,15 @@ fn main() {
             (suit_char, number, index)
         })
         .collect();
-    quicksort(&mut a, 0, n-1);
+    quicksort(&mut a, 0, n - 1);
 
-    if check_stable(&a){
+    if check_stable(&a) {
         println!("Stable");
-    }else{
+    } else {
         println!("Not stable");
     }
 
     for card in a.clone() {
-        println!("{} {}", card.0, card.1);
+        sprintln!("{} {}", card.0, card.1);
     }
 }
