@@ -98,14 +98,14 @@ fn main() {
             let parent_id: NodeId = node.parent.unwrap();
             print!("parent = {}, ", parent_id);
             let parent: &Node = &nodes[parent_id];
-            if parent.left.unwrap() == index as NodeId {
+            if parent.left != None && parent.left.unwrap() == index as NodeId {
                 if parent.right == None {
                     print!("sibling = -1, ");
                 } else {
                     print!("sibling = {}, ", parent.right.unwrap());
                 }
             }
-            if parent.right.unwrap() == index as NodeId {
+            if parent.right != None && parent.right.unwrap() == index as NodeId {
                 if parent.left == None {
                     print!("sibling = -1, ");
                 } else {
@@ -113,7 +113,6 @@ fn main() {
                 }
             }
         }
-        // TODO: Case #3 Panicked
         let mut degree: u32 = 0;
         if node.left != None {
             degree += 1;
