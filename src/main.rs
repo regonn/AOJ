@@ -93,20 +93,44 @@ fn main() {
     for (index, node) in nodes.iter().enumerate() {
         print!("node {}: ", index);
         if node.parent == None {
-            print!("parent = -1, ");
+            print!("parent = -1, sibling = -1, ");
         } else {
-            print!("parent = {}, ", node.parent.unwrap());
+            let parent_id: NodeId = node.parent.unwrap();
+            print!("parent = {}, ", parent_id);
+            let parent: &Node = &nodes[parent_id];
+            if parent.left.unwrap() == index as NodeId {
+                if parent.right == None {
+                    print!("sibling = -1, ");
+                } else {
+                    print!("sibling = {}, ", parent.right.unwrap());
+                }
+            }
+            if parent.right.unwrap() == index as NodeId {
+                if parent.left == None {
+                    print!("sibling = -1, ");
+                } else {
+                    print!("sibling = {}, ", parent.left.unwrap());
+                }
+            }
         }
+        // TODO: Case #3 Panicked
+        let mut degree: u32 = 0;
+        if node.left != None {
+            degree += 1;
+        }
+        if node.right != None {
+            degree += 1;
+        }
+        print!("degree = {}, ", degree);
         print!("depth = {}, ", node.depth);
-
-        // TODO: sibling
+        print!("height = {}, ", node.height);
 
         if node.parent == None {
-            println!("root, ");
+            println!("root");
         } else if node.left == None && node.right == None {
-            println!("leaf, ");
+            println!("leaf");
         } else {
-            println!("internal node, ");
+            println!("internal node");
         }
     }
 }
