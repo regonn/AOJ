@@ -3,12 +3,6 @@ use std::str::FromStr;
 
 type NodeId = usize;
 
-struct Node {
-    parent: Option<NodeId>,
-    left: Option<NodeId>,
-    right: Option<NodeId>,
-}
-
 fn read<T: FromStr>() -> T {
     let stdin = stdin();
     let stdin = stdin.lock();
@@ -24,37 +18,24 @@ fn read<T: FromStr>() -> T {
 fn reconstruction(
     l: NodeId,
     r: NodeId,
-    nodes: &mut Vec<Node>,
     preorder: &Vec<NodeId>,
     inorder: &Vec<NodeId>,
+    postorder: &mut Vec<NodeId>,
     position: &mut NodeId,
 ) {
-    if l <= r {
+    if l >= r {
         return;
     }
-}
-
-fn postorder(node_id: NodeId, nodes: &Vec<Node>) {
-    if nodes[node_id].left != None {
-        postorder(nodes[node_id].left.unwrap(), nodes)
-    }
-    if nodes[node_id].right != None {
-        postorder(nodes[node_id].right.unwrap(), nodes)
-    }
-    print!(" {}", node_id);
+    *position += 1;
+    let root: NodeId = preorder[*position];
+    let m: NodeId = inorder.iter().position(|&x| x == root).unwrap();
+    reconstruction(l, m, preorder, inorder, postorder, position);
+    reconstruction(m + 1, r, preorder, inorder, postorder, position);
+    postorder.push(root);
 }
 
 fn main() {
     let n: usize = read();
-    let mut nodes: Vec<Node> = (0..n)
-        .map(|_| Node {
-            parent: None,
-            left: None,
-            right: None,
-        })
-        .collect();
-
-    let mut root_node_id: NodeId = 0;
 
     let preorder: Vec<NodeId> = (0..n)
         .map(|_| {
@@ -69,41 +50,17 @@ fn main() {
         })
         .collect();
 
+    let mut postorder: Vec<NodeId> = vec![];
+
     let mut position: NodeId = 0;
 
-    reconstruction(0, n, &mut nodes, &preorder, &inorder, &mut position);
+    reconstruction(0, n, &preorder, &inorder, &mut postorder, &mut position);
 
-    for _ in 0..n {
-        let node_id: NodeId = read();
-        let left_input: i64 = read();
-        let right_input: i64 = read();
-
-        if left_input == -1 {
-            nodes[node_id].left = None;
+    for (index, number) in postorder.iter().enumerate() {
+        if index != n - 1 {
+            print!("{} ", number + 1);
         } else {
-            nodes[node_id].left = Some(left_input as usize);
-            nodes[left_input as usize].parent = Some(node_id);
-        }
-
-        if right_input == -1 {
-            nodes[node_id].right = None;
-        } else {
-            nodes[node_id].right = Some(right_input as usize);
-            nodes[right_input as usize].parent = Some(node_id);
+            println!("{}", number + 1);
         }
     }
-
-    for index in 0..n {
-        if nodes[index].parent == None {
-            root_node_id = index;
-        }
-    }
-
-    println!("Preorder");
-    println!();
-    println!("Inorder");
-    println!();
-    println!("Postorder");
-    postorder(root_node_id, &nodes);
-    println!();
 }
