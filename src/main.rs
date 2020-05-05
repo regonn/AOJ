@@ -21,13 +21,13 @@ fn reconstruction(
     preorder: &Vec<NodeId>,
     inorder: &Vec<NodeId>,
     postorder: &mut Vec<NodeId>,
-    position: &mut NodeId,
+    position: &mut isize,
 ) {
     if l >= r {
         return;
     }
     *position += 1;
-    let root: NodeId = preorder[*position];
+    let root: NodeId = preorder[*position as usize];
     let m: NodeId = inorder.iter().position(|&x| x == root).unwrap();
     reconstruction(l, m, preorder, inorder, postorder, position);
     reconstruction(m + 1, r, preorder, inorder, postorder, position);
@@ -52,7 +52,7 @@ fn main() {
 
     let mut postorder: Vec<NodeId> = vec![];
 
-    let mut position: NodeId = 0;
+    let mut position: isize = -1;
 
     reconstruction(0, n, &preorder, &inorder, &mut postorder, &mut position);
 
