@@ -4,6 +4,7 @@ use std::str::FromStr;
 type NodeId = usize;
 
 struct Node {
+    id: NodeId,
     parent: Option<NodeId>,
     left: Option<NodeId>,
     right: Option<NodeId>,
@@ -27,19 +28,39 @@ impl Tree {
         let mut y: Option<NodeId> = None;
         let mut x: Option<NodeId> = self.root;
 
-        while x != None {}
+        while x != None {
+            y = x;
+            if value < self.nodes[x.unwrap()].value {
+                x = self.nodes[x.unwrap()].left;
+            } else {
+                x = self.nodes[x.unwrap()].right;
+            }
+        }
 
-        let mut node = Node {
+        let node = Node {
+            id: self.nodes.len(),
             parent: y,
             value: value,
             left: None,
             right: None,
         };
+
+        if y == None {
+            self.root = Some(0);
+        } else if node.value < self.nodes[y.unwrap()].value {
+            self.nodes[y.unwrap()].left = Some(node.id);
+        } else {
+            self.nodes[y.unwrap()].right = Some(node.id);
+        }
+
+        self.nodes.push(node)
     }
 
     fn print(&mut self) {
         inorder(0, &self.nodes);
+        println!();
         preorder(0, &self.nodes);
+        println!();
     }
 }
 
