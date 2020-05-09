@@ -56,26 +56,52 @@ impl Tree {
         self.nodes.push(node)
     }
 
-    fn find(&self, value: i64) {
+    fn find(&self, value: i64) -> Option<NodeId> {
         if self.root == None {
-            println!("no");
+            return None;
         } else {
             let mut node_id: Option<NodeId> = Some(self.nodes[self.root.unwrap()].id);
             while node_id != None {
                 if self.nodes[node_id.unwrap()].value == value {
-                    println!("yes");
-                    return;
+                    return node_id;
                 } else if self.nodes[node_id.unwrap()].value < value {
                     node_id = self.nodes[node_id.unwrap()].right;
                 } else {
                     node_id = self.nodes[node_id.unwrap()].left;
                 }
             }
-            println!("no");
+            return None;
         }
     }
 
-    fn delete(&mut self, value: i64) {}
+    fn delete(&mut self, value: i64) {
+        let node_id: Option<NodeId> = self.find(value);
+        if node_id != None {
+            let current_node_id: NodeId = node_id.unwrap();
+            if self.nodes[current_node_id].left == None && self.nodes[current_node_id].right == None
+            {
+                let parent_node_id: NodeId = self.nodes[current_node_id].parent.unwrap();
+                if self.nodes[parent_node_id].left == node_id {
+                    self.nodes[parent_node_id].left = None;
+                } else {
+                    self.nodes[parent_node_id].right = None;
+                }
+            } else if self.nodes[current_node_id].left != None
+                && self.nodes[current_node_id].right != None
+            {
+                let left_child_id: NodeId = self.nodes[current_node_id].left.unwrap();
+                let left_child_value: i64 = self.nodes[left_child_id].value;
+                self.delete(left_child_value);
+                self.nodes[current_node_id].value = left_child_value;
+            } else {
+                if self.nodes[current_node_id].left != None {
+                    let child_id: NodeId = self.nodes[current_node_id].left.unwrap();
+                    let parent_node_id: NodeId = self.nodes[current_node_id].parent.unwrap();
+                    // TODO: node has one child
+                }
+            }
+        }
+    }
 
     fn print(&mut self) {
         inorder(0, &self.nodes);
@@ -129,7 +155,11 @@ fn main() {
             }
             "find" => {
                 let number: i64 = read();
-                tree.find(number);
+                if tree.find(number) != None {
+                    println!("yes");
+                } else {
+                    println!("no");
+                };
             }
             "delete" => {
                 let number: i64 = read();
