@@ -89,16 +89,28 @@ impl Tree {
             } else if self.nodes[current_node_id].left != None
                 && self.nodes[current_node_id].right != None
             {
-                let left_child_id: NodeId = self.nodes[current_node_id].left.unwrap();
-                let left_child_value: i64 = self.nodes[left_child_id].value;
-                self.delete(left_child_value);
-                self.nodes[current_node_id].value = left_child_value;
-            } else {
-                if self.nodes[current_node_id].left != None {
-                    let child_id: NodeId = self.nodes[current_node_id].left.unwrap();
-                    let parent_node_id: NodeId = self.nodes[current_node_id].parent.unwrap();
-                    // TODO: node has one child
+                let right_child_id: NodeId = self.nodes[current_node_id].right.unwrap();
+                let right_child_value: i64 = self.nodes[right_child_id].value;
+                if self.nodes[right_child_id].left == None
+                    && self.nodes[right_child_id].right == None
+                {
+                    // TODO: Case # 3
                 }
+                self.nodes[current_node_id].value = right_child_value;
+            } else {
+                let parent_node_id: NodeId = self.nodes[current_node_id].parent.unwrap();
+                let mut child_id: NodeId;
+                if self.nodes[current_node_id].left != None {
+                    child_id = self.nodes[current_node_id].left.unwrap();
+                } else {
+                    child_id = self.nodes[current_node_id].right.unwrap();
+                }
+                if self.nodes[parent_node_id].left == Some(current_node_id) {
+                    self.nodes[parent_node_id].left = Some(child_id);
+                } else {
+                    self.nodes[parent_node_id].right = Some(child_id);
+                }
+                self.nodes[child_id].parent = Some(parent_node_id);
             }
         }
     }
