@@ -74,6 +74,21 @@ impl Tree {
         }
     }
 
+    fn get_minimum(&mut self, node_id: NodeId) -> NodeId {
+        let mut return_node_id: NodeId = node_id;
+        while self.nodes[return_node_id].left != None {
+            return_node_id = self.nodes[return_node_id].left.unwrap();
+        }
+        return return_node_id;
+    }
+
+    fn get_next_inorder(&mut self, node_id: NodeId) -> NodeId {
+        if self.nodes[node_id].right != None {
+            return get_minimum(self.nodes[node_id].right.unwrap());
+        }
+        return node_id;
+    }
+
     fn delete(&mut self, value: i64) {
         let node_id: Option<NodeId> = self.find(value);
         if node_id != None {
@@ -89,14 +104,20 @@ impl Tree {
             } else if self.nodes[current_node_id].left != None
                 && self.nodes[current_node_id].right != None
             {
-                let right_child_id: NodeId = self.nodes[current_node_id].right.unwrap();
-                let right_child_value: i64 = self.nodes[right_child_id].value;
+                let next_inorder_id: NodeId = get_next_inorder(current_node_id)
+                self.nodes[current_node_id].value = right_child_value;
+
                 if self.nodes[right_child_id].left == None
                     && self.nodes[right_child_id].right == None
                 {
-                    // TODO: Case # 3
+                    self.nodes[current_node_id].right = None;
+                } else {
+                    if self.nodes[right_child_id].left != None {
+                        self.nodes[current_node_id].right = self.nodes[right_child_id].left
+                    } else {
+                        self.nodes[current_node_id].right = self.nodes[right_child_id].right
+                    }
                 }
-                self.nodes[current_node_id].value = right_child_value;
             } else {
                 let parent_node_id: NodeId = self.nodes[current_node_id].parent.unwrap();
                 let mut child_id: NodeId;
