@@ -83,56 +83,66 @@ impl Tree {
     }
 
     fn get_next_inorder(&mut self, node_id: NodeId) -> NodeId {
-        if self.nodes[node_id].right != None {
-            return get_minimum(self.nodes[node_id].right.unwrap());
+        let mut current_node_id: NodeId = node_id;
+        if self.nodes[current_node_id].right != None {
+            let right_child_id = self.nodes[current_node_id].right.unwrap();
+            return self.get_minimum(right_child_id);
         }
-        return node_id;
+
+        let mut parent_id: Option<NodeId> = self.nodes[current_node_id].parent;
+        while parent_id != None
+            && Some(self.nodes[current_node_id].id) == self.nodes[parent_id.unwrap()].right
+        {
+            current_node_id = parent_id.unwrap();
+            parent_id = self.nodes[current_node_id].parent;
+        }
+        return current_node_id;
     }
 
     fn delete(&mut self, value: i64) {
         let node_id: Option<NodeId> = self.find(value);
         if node_id != None {
             let current_node_id: NodeId = node_id.unwrap();
-            if self.nodes[current_node_id].left == None && self.nodes[current_node_id].right == None
+            let delete_target_node_id: NodeId;
+            let delete_target_child_id: Option<NodeId>;
+            if self.nodes[current_node_id].left == None || self.nodes[current_node_id].right == None
             {
-                let parent_node_id: NodeId = self.nodes[current_node_id].parent.unwrap();
-                if self.nodes[parent_node_id].left == node_id {
-                    self.nodes[parent_node_id].left = None;
-                } else {
-                    self.nodes[parent_node_id].right = None;
-                }
-            } else if self.nodes[current_node_id].left != None
-                && self.nodes[current_node_id].right != None
-            {
-                let next_inorder_id: NodeId = get_next_inorder(current_node_id)
-                self.nodes[current_node_id].value = right_child_value;
-
-                if self.nodes[right_child_id].left == None
-                    && self.nodes[right_child_id].right == None
-                {
-                    self.nodes[current_node_id].right = None;
-                } else {
-                    if self.nodes[right_child_id].left != None {
-                        self.nodes[current_node_id].right = self.nodes[right_child_id].left
-                    } else {
-                        self.nodes[current_node_id].right = self.nodes[right_child_id].right
-                    }
-                }
+                delete_target_node_id = current_node_id;
             } else {
-                let parent_node_id: NodeId = self.nodes[current_node_id].parent.unwrap();
-                let mut child_id: NodeId;
-                if self.nodes[current_node_id].left != None {
-                    child_id = self.nodes[current_node_id].left.unwrap();
-                } else {
-                    child_id = self.nodes[current_node_id].right.unwrap();
-                }
-                if self.nodes[parent_node_id].left == Some(current_node_id) {
-                    self.nodes[parent_node_id].left = Some(child_id);
-                } else {
-                    self.nodes[parent_node_id].right = Some(child_id);
-                }
-                self.nodes[child_id].parent = Some(parent_node_id);
+                delete_target_node_id = self.get_next_inorder(current_node_id);
             }
+
+            if self.nodes[delete_target_node_id].left != None {
+                delete_target_child_id = self.nodes[delete_target_node_id].left;
+            } else {
+            }
+            // if self.nodes[current_node_id].left == None && self.nodes[current_node_id].right == None
+            // {
+            //     let parent_node_id: NodeId = self.nodes[current_node_id].parent.unwrap();
+            //     if self.nodes[parent_node_id].left == node_id {
+            //         self.nodes[parent_node_id].left = None;
+            //     } else {
+            //         self.nodes[parent_node_id].right = None;
+            //     }
+            // } else if self.nodes[current_node_id].left != None
+            //     && self.nodes[current_node_id].right != None
+            // {
+            //     let next_inorder_id: NodeId = self.get_next_inorder(current_node_id);
+            // } else {
+            //     let parent_node_id: NodeId = self.nodes[current_node_id].parent.unwrap();
+            //     let mut child_id: NodeId;
+            //     if self.nodes[current_node_id].left != None {
+            //         child_id = self.nodes[current_node_id].left.unwrap();
+            //     } else {
+            //         child_id = self.nodes[current_node_id].right.unwrap();
+            //     }
+            //     if self.nodes[parent_node_id].left == Some(current_node_id) {
+            //         self.nodes[parent_node_id].left = Some(child_id);
+            //     } else {
+            //         self.nodes[parent_node_id].right = Some(child_id);
+            //     }
+            //     self.nodes[child_id].parent = Some(parent_node_id);
+            // }
         }
     }
 
