@@ -37,8 +37,10 @@ impl Tree {
             }
         }
 
+        let id: NodeId = self.nodes.len();
+
         let node = Node {
-            id: self.nodes.len(),
+            id: id,
             parent: y,
             value: value,
             left: None,
@@ -46,7 +48,7 @@ impl Tree {
         };
 
         if y == None {
-            self.root = Some(0);
+            self.root = Some(id);
         } else if node.value < self.nodes[y.unwrap()].value {
             self.nodes[y.unwrap()].left = Some(node.id);
         } else {
@@ -115,34 +117,29 @@ impl Tree {
             if self.nodes[delete_target_node_id].left != None {
                 delete_target_child_id = self.nodes[delete_target_node_id].left;
             } else {
+                delete_target_child_id = self.nodes[delete_target_node_id].right;
             }
-            // if self.nodes[current_node_id].left == None && self.nodes[current_node_id].right == None
-            // {
-            //     let parent_node_id: NodeId = self.nodes[current_node_id].parent.unwrap();
-            //     if self.nodes[parent_node_id].left == node_id {
-            //         self.nodes[parent_node_id].left = None;
-            //     } else {
-            //         self.nodes[parent_node_id].right = None;
-            //     }
-            // } else if self.nodes[current_node_id].left != None
-            //     && self.nodes[current_node_id].right != None
-            // {
-            //     let next_inorder_id: NodeId = self.get_next_inorder(current_node_id);
-            // } else {
-            //     let parent_node_id: NodeId = self.nodes[current_node_id].parent.unwrap();
-            //     let mut child_id: NodeId;
-            //     if self.nodes[current_node_id].left != None {
-            //         child_id = self.nodes[current_node_id].left.unwrap();
-            //     } else {
-            //         child_id = self.nodes[current_node_id].right.unwrap();
-            //     }
-            //     if self.nodes[parent_node_id].left == Some(current_node_id) {
-            //         self.nodes[parent_node_id].left = Some(child_id);
-            //     } else {
-            //         self.nodes[parent_node_id].right = Some(child_id);
-            //     }
-            //     self.nodes[child_id].parent = Some(parent_node_id);
-            // }
+
+            if delete_target_child_id != None {
+                self.nodes[delete_target_child_id.unwrap()].parent =
+                    self.nodes[delete_target_node_id].parent
+            }
+
+            if self.nodes[delete_target_node_id].parent == None {
+                self.root = delete_target_child_id;
+            } else {
+                let delete_target_parent_id: NodeId =
+                    self.nodes[delete_target_node_id].parent.unwrap();
+                if Some(delete_target_node_id) == self.nodes[delete_target_parent_id].left {
+                    self.nodes[delete_target_parent_id].left = delete_target_child_id;
+                } else {
+                    self.nodes[delete_target_parent_id].right = delete_target_child_id;
+                }
+            }
+
+            if current_node_id != delete_target_node_id {
+                self.nodes[current_node_id].value = self.nodes[delete_target_node_id].value;
+            }
         }
     }
 
