@@ -25,9 +25,23 @@ impl Tree {
         }
     }
 
+    fn right_rotate(&mut self, node_id: NodeId) -> NodeId {
+        let left_node_id = self.nodes[node_id].left.unwrap();
+        self.nodes[node_id].left = self.nodes[left_node_id].right;
+        self.nodes[left_node_id].right = Some(node_id);
+        return left_node_id;
+    }
+
+    fn left_rotate(&mut self, node_id: NodeId) -> NodeId {
+        let right_node_id = self.nodes[node_id].right.unwrap();
+        self.nodes[node_id].right = self.nodes[right_node_id].left;
+        self.nodes[right_node_id].left = Some(node_id);
+        return right_node_id;
+    }
+
     fn insert(&mut self, node_id: Option<NodeId>, key: u64, priority: u64) -> Option<NodeId> {
-        let id: NodeId = self.nodes.len();
         if node_id == None {
+            let id: NodeId = self.nodes.len();
             let node = Node {
                 id: id,
                 parent: None,
@@ -36,38 +50,33 @@ impl Tree {
                 key: key,
                 priority: priority,
             };
-            self.nodes.push(node)
+            self.nodes.push(node);
+            return Some(id);
         }
-        let mut y: Option<NodeId> = None;
-        let mut x: Option<NodeId> = self.root;
 
-        while x != None {
-            y = x;
-            if key < self.nodes[x.unwrap()].key {
-                x = self.nodes[x.unwrap()].left;
-            } else {
-                x = self.nodes[x.unwrap()].right;
+        let mut current_node_id = node_id.unwrap();
+
+        if key == self.nodes[current_node_id].key {
+            return Some(current_node_id);
+        }
+
+        if key < self.nodes[current_node_id].key {
+            let mut left_node_id: Option<NodeId> = self.nodes[current_node_id].left;
+            self.nodes[current_node_id].left = self.insert(left_node_id, key, priority);
+            left_node_id = self.nodes[current_node_id].left;
+            if self.nodes[current_node_id].priority < self.nodes[left_node_id.unwrap()].priority {
+                current_node_id = self.right_rotate(current_node_id);
+            }
+        } else {
+            let mut right_node_id: Option<NodeId> = self.nodes[current_node_id].right;
+            self.nodes[current_node_id].right = self.insert(right_node_id, key, priority);
+            right_node_id = self.nodes[current_node_id].right;
+            if self.nodes[current_node_id].priority < self.nodes[right_node_id.unwrap()].priority {
+                current_node_id = self.left_rotate(current_node_id);
             }
         }
 
-        let node = Node {
-            id: id,
-            parent: y,
-            left: None,
-            right: None,
-            key: key,
-            priority: priority,
-        };
-
-        if y == None {
-            self.root = Some(id);
-        } else if node.key < self.nodes[y.unwrap()].key {
-            self.nodes[y.unwrap()].left = Some(node.id);
-        } else {
-            self.nodes[y.unwrap()].right = Some(node.id);
-        }
-
-        self.nodes.push(node)
+        return Some(current_node_id);
     }
 
     fn find(&self, key: u64) -> Option<NodeId> {
@@ -204,7 +213,7 @@ fn main() {
             "insert" => {
                 let key: u64 = read();
                 let priority: u64 = read();
-                tree.insert(key, priority);
+                tree.insert(None, key, priority);
             }
             "find" => {
                 let key: u64 = read();
