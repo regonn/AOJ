@@ -39,6 +39,7 @@ impl Tree {
         return right_node_id;
     }
 
+    // add root
     fn insert(&mut self, node_id: Option<NodeId>, key: u64, priority: u64) -> Option<NodeId> {
         if node_id == None {
             let id: NodeId = self.nodes.len();
