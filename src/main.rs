@@ -40,7 +40,12 @@ impl Tree {
     }
 
     // add root
-    fn insert(&mut self, node_id: Option<NodeId>, key: u64, priority: u64) -> Option<NodeId> {
+    fn insert(&mut self, key: u64, priority: u64) {
+        let root: Option<NodeId> = self.root;
+        self.root = self._insert(root, key, priority)
+    }
+
+    fn _insert(&mut self, node_id: Option<NodeId>, key: u64, priority: u64) -> Option<NodeId> {
         if node_id == None {
             let id: NodeId = self.nodes.len();
             let node = Node {
@@ -63,14 +68,14 @@ impl Tree {
 
         if key < self.nodes[current_node_id].key {
             let mut left_node_id: Option<NodeId> = self.nodes[current_node_id].left;
-            self.nodes[current_node_id].left = self.insert(left_node_id, key, priority);
+            self.nodes[current_node_id].left = self._insert(left_node_id, key, priority);
             left_node_id = self.nodes[current_node_id].left;
             if self.nodes[current_node_id].priority < self.nodes[left_node_id.unwrap()].priority {
                 current_node_id = self.right_rotate(current_node_id);
             }
         } else {
             let mut right_node_id: Option<NodeId> = self.nodes[current_node_id].right;
-            self.nodes[current_node_id].right = self.insert(right_node_id, key, priority);
+            self.nodes[current_node_id].right = self._insert(right_node_id, key, priority);
             right_node_id = self.nodes[current_node_id].right;
             if self.nodes[current_node_id].priority < self.nodes[right_node_id.unwrap()].priority {
                 current_node_id = self.left_rotate(current_node_id);
@@ -124,6 +129,30 @@ impl Tree {
     }
 
     fn delete(&mut self, key: u64) {
+        let root = self.root;
+        self.root = self._delete(root, key)
+    }
+
+    fn _delete(&mut self, node_id: Option<NodeId>, key: u64) -> Option<NodeId> {
+        if node_id == None {
+            return None;
+        }
+
+        let current_node_id: NodeId = node_id.unwrap();
+
+        if key < self.nodes[current_node_id].key {
+            let left_node_id: Option<NodeId> = self.nodes[current_node_id].left;
+            self.nodes[current_node_id].left = self._delete(left_node_id, key);
+        } else if key > self.nodes[current_node_id].key {
+            let right_node_id: Option<NodeId> = self.nodes[current_node_id].right;
+            self.nodes[current_node_id].right = self._delete(right_node_id, key);
+        } else {
+            return self.delete_node(current_node_id, key);
+        }
+        return Some(current_node_id);
+    }
+
+    fn delete_node(&mut self, node_id: NodeId, key: u64) -> Option<NodeId> {
         let node_id: Option<NodeId> = self.find(key);
         if node_id != None {
             let current_node_id: NodeId = node_id.unwrap();
@@ -214,7 +243,7 @@ fn main() {
             "insert" => {
                 let key: u64 = read();
                 let priority: u64 = read();
-                tree.insert(None, key, priority);
+                tree.insert(key, priority);
             }
             "find" => {
                 let key: u64 = read();
