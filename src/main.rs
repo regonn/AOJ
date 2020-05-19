@@ -103,31 +103,6 @@ impl Tree {
         }
     }
 
-    fn get_minimum(&mut self, node_id: NodeId) -> NodeId {
-        let mut return_node_id: NodeId = node_id;
-        while self.nodes[return_node_id].left != None {
-            return_node_id = self.nodes[return_node_id].left.unwrap();
-        }
-        return return_node_id;
-    }
-
-    fn get_next_inorder(&mut self, node_id: NodeId) -> NodeId {
-        let mut current_node_id: NodeId = node_id;
-        if self.nodes[current_node_id].right != None {
-            let right_child_id = self.nodes[current_node_id].right.unwrap();
-            return self.get_minimum(right_child_id);
-        }
-
-        let mut parent_id: Option<NodeId> = self.nodes[current_node_id].parent;
-        while parent_id != None
-            && Some(self.nodes[current_node_id].id) == self.nodes[parent_id.unwrap()].right
-        {
-            current_node_id = parent_id.unwrap();
-            parent_id = self.nodes[current_node_id].parent;
-        }
-        return current_node_id;
-    }
-
     fn delete(&mut self, key: u64) {
         let root = self.root;
         self.root = self._delete(root, key)
@@ -153,45 +128,25 @@ impl Tree {
     }
 
     fn delete_node(&mut self, node_id: NodeId, key: u64) -> Option<NodeId> {
-        let node_id: Option<NodeId> = self.find(key);
-        if node_id != None {
-            let current_node_id: NodeId = node_id.unwrap();
-            let delete_target_node_id: NodeId;
-            let delete_target_child_id: Option<NodeId>;
-            if self.nodes[current_node_id].left == None || self.nodes[current_node_id].right == None
-            {
-                delete_target_node_id = current_node_id;
+        let mut node_id: NodeId = node_id;
+        let left = self.nodes[node_id].left;
+        let right = self.nodes[node_id].right;
+        if left == None && right == None {
+            return None;
+        } else if left == None {
+            node_id = self.left_rotate(node_id)
+        } else if right == None {
+            node_id = self.right_rotate(node_id)
+        } else {
+            let left: NodeId = left.unwrap();
+            let right: NodeId = right.unwrap();
+            if self.nodes[left].priority > self.nodes[right].priority {
+                node_id = self.right_rotate(node_id);
             } else {
-                delete_target_node_id = self.get_next_inorder(current_node_id);
-            }
-
-            if self.nodes[delete_target_node_id].left != None {
-                delete_target_child_id = self.nodes[delete_target_node_id].left;
-            } else {
-                delete_target_child_id = self.nodes[delete_target_node_id].right;
-            }
-
-            if delete_target_child_id != None {
-                self.nodes[delete_target_child_id.unwrap()].parent =
-                    self.nodes[delete_target_node_id].parent
-            }
-
-            if self.nodes[delete_target_node_id].parent == None {
-                self.root = delete_target_child_id;
-            } else {
-                let delete_target_parent_id: NodeId =
-                    self.nodes[delete_target_node_id].parent.unwrap();
-                if Some(delete_target_node_id) == self.nodes[delete_target_parent_id].left {
-                    self.nodes[delete_target_parent_id].left = delete_target_child_id;
-                } else {
-                    self.nodes[delete_target_parent_id].right = delete_target_child_id;
-                }
-            }
-
-            if current_node_id != delete_target_node_id {
-                self.nodes[current_node_id].key = self.nodes[delete_target_node_id].key;
+                node_id = self.left_rotate(node_id);
             }
         }
+        return self._delete(Some(node_id), key);
     }
 
     fn print(&mut self) {
