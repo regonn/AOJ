@@ -105,7 +105,7 @@ impl Tree {
 
     fn delete(&mut self, key: u64) {
         let root = self.root;
-        self.root = self._delete(root, key)
+        self.root = self._delete(root, key);
     }
 
     fn _delete(&mut self, node_id: Option<NodeId>, key: u64) -> Option<NodeId> {
@@ -150,9 +150,9 @@ impl Tree {
     }
 
     fn print(&mut self) {
-        inorder(0, &self.nodes);
+        inorder(self.root.unwrap(), &self.nodes);
         println!();
-        preorder(0, &self.nodes);
+        preorder(self.root.unwrap(), &self.nodes);
         println!();
     }
 }
