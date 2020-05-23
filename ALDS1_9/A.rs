@@ -27,23 +27,24 @@ fn right(node_id: usize) -> usize {
 
 fn main() {
     let h: usize = read();
-    let a: Vec<i64> = (1..h)
-        .map(|_| {
-            let number: i64 = read();
-            return number;
-        })
-        .collect();
+    let mut a: Vec<i64> = vec![0];
+    for _ in 0..h {
+        let number: i64 = read();
+        a.push(number);
+    }
     for (index, node_key) in a.iter().enumerate() {
-        let current_node_id = index + 1;
-        print!("node {}: key = {}, ", current_node_id, node_key);
-        if parent(current_node_id) >= 1 {
-            print!("parent key = {}, ", a[parent(current_node_id)]);
+        if index == 0 {
+            continue;
         }
-        if left(current_node_id) < h {
-            print!("left key = {}, ", a[left(current_node_id)]);
+        print!("node {}: key = {}, ", index, node_key);
+        if parent(index) >= 1 {
+            print!("parent key = {}, ", a[parent(index)]);
         }
-        if right(current_node_id) < h {
-            print!("right key = {}, ", a[right(current_node_id)]);
+        if left(index) <= h {
+            print!("left key = {}, ", a[left(index)]);
+        }
+        if right(index) <= h {
+            print!("right key = {}, ", a[right(index)]);
         }
         println!();
     }
