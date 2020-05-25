@@ -25,7 +25,7 @@ fn max_heapify(a: &mut Vec<i64>, node_id: usize) {
     let left = left(node_id);
     let right = right(node_id);
     let mut largest: usize;
-    if left <= (a.len() - 1) && a[left] > a[right] {
+    if left <= (a.len() - 1) && a[left] > a[node_id] {
         largest = left;
     } else {
         largest = node_id;
@@ -54,4 +54,12 @@ fn main() {
         a.push(number);
     }
     build_max_heap(&mut a);
+    for (index, value) in a.iter().enumerate() {
+        if index == 0 {
+            continue;
+        } else {
+            print!(" {}", value);
+        }
+    }
+    println!();
 }
