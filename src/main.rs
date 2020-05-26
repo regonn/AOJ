@@ -48,7 +48,8 @@ fn build_max_heap(a: &mut Vec<u32>) {
 
 fn main() {
     let mut done = false;
-    let mut a: Vec<u32> = vec![];
+    let mut a: Vec<u32> = vec![0; 2_000_000];
+    let mut h: usize = 0;
     while !done {
         let command: String = read();
         match &*command {
@@ -58,7 +59,9 @@ fn main() {
                 build_max_heap(&mut a);
             }
             "extract" => {
-                let number: u32 = a.pop();
+                let number: u32 = a.pop().unwrap();
+                build_max_heap(&mut a);
+                println!("{}", number);
             }
             _ => {
                 done = true;
