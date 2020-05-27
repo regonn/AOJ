@@ -21,7 +21,7 @@ fn right(node_id: usize) -> usize {
     return node_id * 2 + 1;
 }
 
-fn max_heapify(a: &mut Vec<u32>, node_id: usize) {
+fn max_heapify(a: &mut Vec<i32>, node_id: usize) {
     let left = left(node_id);
     let right = right(node_id);
     let mut largest: usize;
@@ -40,29 +40,48 @@ fn max_heapify(a: &mut Vec<u32>, node_id: usize) {
     }
 }
 
-fn build_max_heap(a: &mut Vec<u32>) {
-    for i in (1..(((a.len() - 1) / 2) + 1)).rev() {
-        max_heapify(a, i);
+fn increase_key(key: i32, a: &mut Vec<i32>) {
+    let mut i = a.len() - 1;
+    if key < a[i] {
+        return;
     }
+    a[i] = key;
+    while i > 1 && a[i / 2] < a[i] {
+        a.swap(i, i / 2);
+        i = i / 2;
+    }
+}
+
+fn insert(key: i32, a: &mut Vec<i32>) {
+    a.push(i32::min_value());
+    increase_key(key, a);
+}
+
+fn extract(a: &mut Vec<i32>) -> i32 {
+    if a.len() < 1 {
+        return i32::min_value();
+    }
+
+    let maxv;
+    maxv = a[1];
+    a[1] = *a.last().unwrap();
+    a.pop();
+    max_heapify(a, 1);
+    maxv
 }
 
 fn main() {
     let mut done = false;
-    let mut a: Vec<u32> = vec![0; 2_000_000];
-    let mut h: usize = 0;
+    let mut a: Vec<i32> = vec![-1];
+
     while !done {
         let command: String = read();
         match &*command {
             "insert" => {
-                let number: u32 = read();
-                a.push(number);
-                build_max_heap(&mut a);
+                let number: i32 = read();
+                insert(number, &mut a);
             }
-            "extract" => {
-                let number: u32 = a.pop().unwrap();
-                build_max_heap(&mut a);
-                println!("{}", number);
-            }
+            "extract" => println!("{}", extract(&mut a)),
             _ => {
                 done = true;
             }
