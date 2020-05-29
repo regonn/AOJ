@@ -13,17 +13,11 @@ fn read<T: FromStr>() -> T {
     token.parse().ok().expect("failed to parse token")
 }
 
-fn fib(n: u32) -> u32 {
-    if n == 0 {
-        return 1;
-    } else if n == 1 {
-        return 1;
-    } else {
-        return fib(n - 1) + fib(n - 2);
-    }
-}
-
 fn main() {
-    let n: u32 = read();
-    println!("{}", fib(n));
+    let n: usize = read();
+    let mut fib = vec![1; n + 1];
+    for i in 2..n + 1 {
+        fib[i] = fib[i - 1] + fib[i - 2];
+    }
+    println!("{}", fib[n]);
 }
