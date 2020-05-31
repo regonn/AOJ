@@ -15,6 +15,16 @@ fn read<T: FromStr>() -> T {
 
 fn main() {
     let n: usize = read();
-    let mut r: Vec<u32>;
-    let mut c: Vec<u32>;
+    let mut p: Vec<u32> = vec![0];
+    let mut m: Vec<Vec<u32>> = vec![vec![]];
+    for index in 0..n {
+        let r: u32 = read();
+        let c: u32 = read();
+        if index == 0 {
+            p.push(r);
+            p.push(c);
+        } else {
+            p.push(c);
+        }
+    }
 }
