@@ -1,3 +1,4 @@
+use std::cmp::min;
 use std::io::*;
 use std::str::FromStr;
 
@@ -31,7 +32,9 @@ fn main() {
         for index_j in 1..(n - index_i) {
             let index_k = index_i + index_j - 1;
             m[index_j][index_k] = u32::max_value();
-            for index_l in index_j..index_k {}
+            for index_l in index_j..index_k {
+                m[index_j][index_k] = min(m[index_j][index_l], 0)
+            }
         }
     }
 }
