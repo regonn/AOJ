@@ -16,11 +16,11 @@ fn read<T: FromStr>() -> T {
 
 fn main() {
     let n: usize = read();
-    let mut p: Vec<u32> = vec![0; n + 1];
-    let mut m: Vec<Vec<u32>> = vec![vec![u32::max_value(); n + 1]; n + 1];
+    let mut p: Vec<u64> = vec![0; n + 1];
+    let mut m: Vec<Vec<u64>> = vec![vec![u64::max_value(); n + 1]; n + 1];
     for index in 0..n {
-        let r: u32 = read();
-        let c: u32 = read();
+        let r: u64 = read();
+        let c: u64 = read();
         if index == 0 {
             p[index] = r;
             p[index + 1] = c;
@@ -28,7 +28,7 @@ fn main() {
             p[index + 1] = c;
         }
     }
-    for index in 1..n {
+    for index in 1..(n + 1) {
         m[index][index] = 0;
     }
     for index_i in 2..(n + 1) {
@@ -41,7 +41,6 @@ fn main() {
                         + m[index_l + 1][index_k]
                         + p[index_j - 1] * p[index_l] * p[index_k],
                 );
-                println!("{}", m[index_j][index_k]);
             }
         }
     }
