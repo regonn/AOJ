@@ -14,35 +14,26 @@ fn read<T: FromStr>() -> T {
     token.parse().ok().expect("failed to parse token")
 }
 
+fn lcs(x: Vec<char>, y: Vec<char>) -> u16 {
+    let mut matrix: Vec<Vec<u16>> = vec![vec![0; y.len()]; x.len()];
+    let mut input_number = 0;
+    for i in 0..x.len() {
+        if x[i] == y[0] {
+            input_number = 1;
+        }
+        matrix[i][0] = input_number;
+    }
+    return matrix[x.len() - 1][y.len() - 1];
+}
+
 fn main() {
-    let n: usize = read();
-    let mut p: Vec<u64> = vec![0; n + 1];
-    let mut m: Vec<Vec<u64>> = vec![vec![u64::max_value(); n + 1]; n + 1];
-    for index in 0..n {
-        let r: u64 = read();
-        let c: u64 = read();
-        if index == 0 {
-            p[index] = r;
-            p[index + 1] = c;
-        } else {
-            p[index + 1] = c;
-        }
+    let q: usize = read();
+    for _ in 0..q {
+        let x_string: String = read();
+        let y_string: String = read();
+        println!(
+            "{}",
+            lcs(x_string.chars().collect(), y_string.chars().collect())
+        );
     }
-    for index in 1..(n + 1) {
-        m[index][index] = 0;
-    }
-    for index_i in 2..(n + 1) {
-        for index_j in 1..(n - index_i + 2) {
-            let index_k = index_i + index_j - 1;
-            for index_l in index_j..index_k {
-                m[index_j][index_k] = min(
-                    m[index_j][index_k],
-                    m[index_j][index_l]
-                        + m[index_l + 1][index_k]
-                        + p[index_j - 1] * p[index_l] * p[index_k],
-                );
-            }
-        }
-    }
-    println!("{}", m[1][n]);
 }
