@@ -1,4 +1,4 @@
-use std::cmp::min;
+use std::cmp::max;
 use std::io::*;
 use std::str::FromStr;
 
@@ -17,13 +17,35 @@ fn read<T: FromStr>() -> T {
 fn lcs(x: Vec<char>, y: Vec<char>) -> u16 {
     let mut matrix: Vec<Vec<u16>> = vec![vec![0; y.len()]; x.len()];
     let mut input_number = 0;
-    for i in 0..x.len() {
+    let x_len = x.len();
+    let y_len = y.len();
+    for i in 0..(x_len) {
         if x[i] == y[0] {
             input_number = 1;
         }
+        println!("{}", input_number);
         matrix[i][0] = input_number;
     }
-    return matrix[x.len() - 1][y.len() - 1];
+    input_number = 0;
+    for j in 0..(y_len) {
+        if x[0] == y[j] {
+            input_number = 1;
+        }
+        println!("{}", input_number);
+        matrix[0][j] = input_number;
+    }
+
+    for i in 1..(x_len) {
+        for j in 1..(y_len) {
+            if x[i] == y[j] {
+                matrix[i][j] = max(
+                    matrix[i - 1][j - 1] + 1,
+                    max(matrix[i][j - 1], matrix[i - 1][j]),
+                )
+            }
+        }
+    }
+    return matrix[x_len][y_len];
 }
 
 fn main() {
