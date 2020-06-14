@@ -1,3 +1,4 @@
+use std::cmp::min;
 use std::io::*;
 use std::str::FromStr;
 
@@ -15,51 +16,58 @@ fn read<T: FromStr>() -> T {
 
 fn main() {
     let n: usize = read();
-    let p: Vec<f32> = (1..n)
+    let p: Vec<f32> = (1..n + 1)
         .map(|_| {
             let number: f32 = read();
             number
         })
         .collect();
-    let q: Vec<f32> = (0..n)
+    let q: Vec<f32> = (0..n + 1)
         .map(|_| {
             let number: f32 = read();
             number
         })
         .collect();
 
-    let mut k: Vec<Vec<f32>> = vec![vec![0.0: n + 1]: n + 1];
-    let mut c: Vec<Vec<f32>> = vec![vec![0.0: n + 1]: n + 1];
-    let mut s: Vec<f32> = vec![0.0: ((2 * n) + 1)];
-    for index in 0..2*n+1 {
-        s[index +1] = s[i] + (p[i/2] if i % 2 else q[1/2])
+    let mut k: Vec<Vec<usize>> = vec![vec![0; n + 1]; n + 1];
+    let mut c: Vec<Vec<f32>> = vec![vec![0.0; n + 1]; n + 1];
+    let mut s: Vec<f32> = vec![0.0; (2 * n) + 1];
+    for index in 0..2 * n {
+        if index % 2 == 1 {
+            s[index + 1] = s[index] + p[index / 2];
+        } else {
+            s[index + 1] = s[index] + q[index / 2];
+        }
     }
 
-    for index in 0..n+1{
+    for index in 0..n + 1 {
         c[index][index] = q[index];
-        k[index][index] = index as f32;
+        k[index][index] = index;
     }
 
-    for index_i in 1..n+1{
-        for index_j in 0..n+1 - index_i{
-            let m = index_i + index_j
-            let k0 = k[index_j][m -1];
-            let k1 = k[index_j+1][m];
+    for index_i in 1..n + 1 {
+        for index_j in 0..n + 1 - index_i {
+            println!("{} {}", index_i, index_j);
+            let m = index_i + index_j;
+            let k0 = k[index_j][m - 1];
+            let k1 = k[index_j + 1][m];
 
-            let temp = 1e30;
+            let mut temp = 1e30;
 
-            let k2 = None;
+            let mut k2: Option<usize> = None;
 
-            for index_k in k0..min(k1+1, m){
+            for index_k in k0..min(k1 + 1, m) {
                 let v = c[index_j][index_k] + c[index_k + 1][m];
                 if v < temp {
-                    k2 = index_k;
+                    k2 = Some(index_k);
                     temp = v;
-
                 }
             }
-            k[index_j][m] = k2
-            c[index_j][m] = temp + (s[2*m+1] - s[2*index_j])
+            k[index_j][m] = k2.unwrap();
+            
+            println!("{}", k2.unwrap());
+
+            c[index_j][m] = temp + (s[2 * m + 1] - s[2 * index_j]);
         }
     }
     println!("{}", c[0][n]);
