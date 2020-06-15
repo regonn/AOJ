@@ -31,8 +31,8 @@ fn main() {
 
     let mut k: Vec<Vec<usize>> = vec![vec![0; n + 1]; n + 1];
     let mut c: Vec<Vec<f32>> = vec![vec![0.0; n + 1]; n + 1];
-    let mut s: Vec<f32> = vec![0.0; (2 * n) + 1];
-    for index in 0..2 * n {
+    let mut s: Vec<f32> = vec![0.0; (2 * n) + 2];
+    for index in 0..2 * n + 1 {
         if index % 2 == 1 {
             s[index + 1] = s[index] + p[index / 2];
         } else {
@@ -47,7 +47,6 @@ fn main() {
 
     for index_i in 1..n + 1 {
         for index_j in 0..n + 1 - index_i {
-            println!("{} {}", index_i, index_j);
             let m = index_i + index_j;
             let k0 = k[index_j][m - 1];
             let k1 = k[index_j + 1][m];
@@ -64,8 +63,6 @@ fn main() {
                 }
             }
             k[index_j][m] = k2.unwrap();
-            
-            println!("{}", k2.unwrap());
 
             c[index_j][m] = temp + (s[2 * m + 1] - s[2 * index_j]);
         }
