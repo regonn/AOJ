@@ -25,12 +25,23 @@ fn dfs_visit(
     d: &mut Vec<u32>,
     f: &mut Vec<u32>,
 ) {
+    println!("{}", time);
     *time = *time + 1;
+    println!("{}", time);
     color[index] = GRAY;
     d[index] = *time;
     for index_target in 0..color.len() {
-        if m[index][index_target] == 0 {}
+        println!("m: {}", m[index][index_target]);
+        if m[index][index_target] == 0 {
+            continue;
+        }
+        println!("color: {}", color[index_target]);
+        if color[index_target] == WHITE {
+            dfs_visit(m, index_target, color, time, d, f)
+        }
     }
+    color[index] = BLACK;
+    f[index] = *time;
 }
 
 fn main() {
