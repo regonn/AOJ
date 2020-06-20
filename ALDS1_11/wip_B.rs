@@ -25,23 +25,25 @@ fn dfs_visit(
     d: &mut Vec<u32>,
     f: &mut Vec<u32>,
 ) {
-    println!("{}", time);
-    *time = *time + 1;
-    println!("{}", time);
     color[index] = GRAY;
     d[index] = *time;
+    *time = *time + 1;
+    let mut count = 0;
     for index_target in 0..color.len() {
-        println!("m: {}", m[index][index_target]);
         if m[index][index_target] == 0 {
             continue;
         }
-        println!("color: {}", color[index_target]);
         if color[index_target] == WHITE {
-            dfs_visit(m, index_target, color, time, d, f)
+            dfs_visit(m, index_target, color, time, d, f);
+            *time = *time + 1;
+            count += 1;
         }
     }
+    if count == 0 {
+        *time = *time + 1;
+    }
+    f[index] = *time - 1;
     color[index] = BLACK;
-    f[index] = *time;
 }
 
 fn main() {
@@ -50,7 +52,7 @@ fn main() {
     let mut m: Vec<Vec<u8>> = vec![vec![0; n]; n];
     let mut d: Vec<u32> = vec![0; n];
     let mut f: Vec<u32> = vec![0; n];
-    let mut time: u32 = 0;
+    let mut time: u32 = 1;
     for _ in 0..n {
         let index: usize = read();
         let count: usize = read();
