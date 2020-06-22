@@ -20,15 +20,30 @@ const BLACK: u8 = 2;
 
 const INFINITY: u64 = u64::max_value();
 
-fn bfs(s: u64) {}
+fn bfs(m: &Vec<Vec<u8>>, s: usize, color: &mut Vec<u8>, d: &mut Vec<u64>) {
+    let mut q: VecDeque<u64> = VecDeque::new();
+    q.push_back(s as u64);
+    d[s] = 0;
+    while q.len() > 0 {
+        let u: usize = q.pop_front().unwrap() as usize;
+        for v in 0..color.len() {
+            if m[u][v] == 0 {
+                continue;
+            }
+            if d[v] != INFINITY {
+                continue;
+            }
+            d[v] = d[u] + 1;
+            q.push_back(v as u64);
+        }
+    }
+}
 
 fn main() {
     let n: usize = read();
     let mut color: Vec<u8> = vec![WHITE; n];
     let mut m: Vec<Vec<u8>> = vec![vec![0; n]; n];
-    let mut d: Vec<u32> = vec![0; n];
-    let mut f: Vec<u32> = vec![0; n];
-    let mut time: u32 = 0;
+    let mut d: Vec<u64> = vec![INFINITY; n];
     for _ in 0..n {
         let index: usize = read();
         let count: usize = read();
@@ -37,12 +52,5 @@ fn main() {
             m[index - 1][number - 1] = 1;
         }
     }
-    for index in 0..n {
-        if color[index] == WHITE {
-            dfs_visit(&m, index, &mut color, &mut time, &mut d, &mut f);
-        }
-    }
-    for index in 0..n {
-        println!("{} {} {}", index + 1, d[index], f[index]);
-    }
+    bfs(&m, 0, &mut color, &mut d)
 }
