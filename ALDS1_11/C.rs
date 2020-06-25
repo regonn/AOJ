@@ -15,10 +15,8 @@ fn read<T: FromStr>() -> T {
 }
 
 const WHITE: u8 = 0;
-const GRAY: u8 = 1;
-const BLACK: u8 = 2;
 
-const INFINITY: u64 = u64::max_value();
+const INFINITY: u64 = 10000000;
 
 fn bfs(m: &Vec<Vec<u8>>, s: usize, color: &mut Vec<u8>, d: &mut Vec<u64>) {
     let mut q: VecDeque<u64> = VecDeque::new();
@@ -36,6 +34,15 @@ fn bfs(m: &Vec<Vec<u8>>, s: usize, color: &mut Vec<u8>, d: &mut Vec<u64>) {
             d[v] = d[u] + 1;
             q.push_back(v as u64);
         }
+    }
+    for index in 0..d.len() {
+        let number: i64;
+        if d[index] == INFINITY {
+            number = -1;
+        } else {
+            number = d[index] as i64;
+        }
+        println!("{} {}", index + 1, number);
     }
 }
 
