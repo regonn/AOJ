@@ -14,28 +14,38 @@ fn read<T: FromStr>() -> T {
     token.parse().ok().expect("failed to parse token")
 }
 
-const INFINITY: u64 = 10000000;
-
 fn bfs(friends: &Vec<Vec<bool>>, n: usize) -> Vec<Vec<bool>> {
-    let mut d: Vec<u64> = vec![INFINITY; n];
     let mut q: VecDeque<u64> = VecDeque::new();
     let mut connected_friends: Vec<Vec<bool>> = vec![vec![false; n]; n];
     for index in 0..n {
         q.push_back(index as u64);
-        d[index] = 0;
         while q.len() > 0 {
             let u: usize = q.pop_front().unwrap() as usize;
             for v in 0..n {
                 if !friends[u][v] {
                     continue;
                 }
-                if d[v] != INFINITY {
+                if connected_friends[u][v] && connected_friends[v][u] {
                     continue;
                 }
-                d[v] = d[u] + 1;
+
+                connected_friends[u][v] = true;
+                connected_friends[v][u] = true;
+
                 q.push_back(v as u64);
             }
         }
+    }
+
+    for index_i in 0..n {
+        for index_j in 0..n {
+            let mut number: usize = 0;
+            if connected_friends[index_i][index_j] {
+                number = 1;
+            }
+            print!("{} ", number);
+        }
+        println!();
     }
 
     return connected_friends;
