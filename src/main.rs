@@ -14,8 +14,8 @@ fn read<T: FromStr>() -> T {
     token.parse().ok().expect("failed to parse token")
 }
 
-fn bfs(friends: &Vec<Vec<bool>>, n: usize) -> Vec<Vec<bool>> {
-    let mut q: VecDeque<u64> = VecDeque::new();
+fn dfs(friends: &Vec<Vec<bool>>, n: usize) -> Vec<Vec<bool>> {
+    let mut s: VecDeque<u64> = VecDeque::new();
     let mut connected_friends: Vec<Vec<bool>> = vec![vec![false; n]; n];
     for index in 0..n {
         q.push_back(index as u64);
@@ -51,16 +51,20 @@ fn bfs(friends: &Vec<Vec<bool>>, n: usize) -> Vec<Vec<bool>> {
     return connected_friends;
 }
 
+fn assign_color(color: &mut Vec<Option<usize>>, g: &mut Vec<Vec<Option<usize>>>) {}
+
 fn main() {
     let n: usize = read();
     let m: usize = read();
-    let mut friends: Vec<Vec<bool>> = vec![vec![false; n]; n];
+    let mut g: Vec<Vec<Option<usize>>> = vec![vec![None; n]; n];
+    let mut color: Vec<Option<usize>> = vec![None; n];
     for _ in 0..m {
         let person_index1: usize = read();
         let person_index2: usize = read();
-        friends[person_index1][person_index2] = true;
-        friends[person_index2][person_index1] = true;
+        g[person_index1].push(Some(person_index2));
+        g[person_index2].push(Some(person_index1));
     }
+    assign_color(&mut color, &mut g);
     let question_count: usize = read();
     let connected_friends: Vec<Vec<bool>> = bfs(&friends, n);
     for _ in 0..question_count {
