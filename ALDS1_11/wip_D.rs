@@ -14,44 +14,38 @@ fn read<T: FromStr>() -> T {
     token.parse().ok().expect("failed to parse token")
 }
 
-fn dfs(friends: &Vec<Vec<bool>>, n: usize) -> Vec<Vec<bool>> {
-    let mut s: VecDeque<u64> = VecDeque::new();
-    let mut connected_friends: Vec<Vec<bool>> = vec![vec![false; n]; n];
-    for index in 0..n {
-        q.push_back(index as u64);
-        while q.len() > 0 {
-            let u: usize = q.pop_front().unwrap() as usize;
-            for v in 0..n {
-                if !friends[u][v] {
-                    continue;
-                }
-                if connected_friends[u][v] && connected_friends[v][u] {
-                    continue;
-                }
+fn dfs(
+    color: &mut Vec<Option<usize>>,
+    target: usize,
+    id: usize,
+    n: usize,
+    g: &mut Vec<Vec<Option<usize>>>,
+) {
+    let mut s: VecDeque<usize> = VecDeque::new();
+    s.push_back(target);
+    color[target] = Some(id);
 
-                connected_friends[u][v] = true;
-                connected_friends[v][u] = true;
-
-                q.push_back(v as u64);
+    while s.len() > 0 {
+        let u: usize = s.pop_front().unwrap() as usize;
+        for i in 0..g[u].len() {
+            let v: usize = g[u][i].unwrap();
+            if color[v] == None {
+                color[v] = Some(id);
+                s.push_back(v)
             }
         }
     }
-
-    for index_i in 0..n {
-        for index_j in 0..n {
-            let mut number: usize = 0;
-            if connected_friends[index_i][index_j] {
-                number = 1;
-            }
-            print!("{} ", number);
-        }
-        println!();
-    }
-
-    return connected_friends;
 }
 
-fn assign_color(color: &mut Vec<Option<usize>>, g: &mut Vec<Vec<Option<usize>>>) {}
+fn assign_color(color: &mut Vec<Option<usize>>, g: &mut Vec<Vec<Option<usize>>>, n: usize) {
+    let mut id: usize = 1;
+    for u in 0..n {
+        if color[u] == None {
+            id = id + 1;
+            dfs(color, u, id, n, g);
+        }
+    }
+}
 
 fn main() {
     let n: usize = read();
@@ -64,13 +58,12 @@ fn main() {
         g[person_index1].push(Some(person_index2));
         g[person_index2].push(Some(person_index1));
     }
-    assign_color(&mut color, &mut g);
+    assign_color(&mut color, &mut g, n);
     let question_count: usize = read();
-    let connected_friends: Vec<Vec<bool>> = bfs(&friends, n);
     for _ in 0..question_count {
         let from: usize = read();
         let to: usize = read();
-        if connected_friends[from][to] {
+        if color[from] == color[to] {
             println!("yes");
         } else {
             println!("no");
