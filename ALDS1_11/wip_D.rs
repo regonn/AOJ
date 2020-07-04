@@ -18,7 +18,6 @@ fn dfs(
     color: &mut Vec<Option<usize>>,
     target: usize,
     id: usize,
-    n: usize,
     g: &mut Vec<Vec<Option<usize>>>,
 ) {
     let mut s: VecDeque<usize> = VecDeque::new();
@@ -28,10 +27,12 @@ fn dfs(
     while s.len() > 0 {
         let u: usize = s.pop_front().unwrap() as usize;
         for i in 0..g[u].len() {
-            let v: usize = g[u][i].unwrap();
-            if color[v] == None {
-                color[v] = Some(id);
-                s.push_back(v)
+            if g[u][i] != None {
+                let v: usize = g[u][i].unwrap();
+                if color[v] == None {
+                    color[v] = Some(id);
+                    s.push_back(v)
+                }
             }
         }
     }
@@ -42,7 +43,7 @@ fn assign_color(color: &mut Vec<Option<usize>>, g: &mut Vec<Vec<Option<usize>>>,
     for u in 0..n {
         if color[u] == None {
             id = id + 1;
-            dfs(color, u, id, n, g);
+            dfs(color, u, id, g);
         }
     }
 }
