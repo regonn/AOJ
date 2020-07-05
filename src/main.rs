@@ -42,7 +42,6 @@ fn assign_color(color: &mut Vec<Option<usize>>, g: &mut Vec<Vec<usize>>, n: usiz
 
 fn main() {
     let n: usize = read();
-    let m: usize = read();
     let mut g: Vec<Vec<usize>> = vec![vec![]; n];
     let mut color: Vec<Option<usize>> = vec![None; n];
     for _ in 0..m {
