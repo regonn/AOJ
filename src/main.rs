@@ -30,25 +30,26 @@ fn dfs(color: &mut Vec<Option<usize>>, target: usize, id: usize, g: &mut Vec<Vec
     }
 }
 
-fn assign_color(color: &mut Vec<Option<usize>>, g: &mut Vec<Vec<usize>>, n: usize) {
-    let mut id: usize = 1;
-    for u in 0..n {
-        if color[u] == None {
-            id = id + 1;
-            dfs(color, u, id, g);
-        }
-    }
-}
+fn assign_color(color: &mut Vec<u32>, g: &mut Vec<Vec<u32>>, n: usize) {}
+
+const WHITE: u32 = 0;
+const GRAY: u32 = 1;
+const BLACK: u32 = 2;
+const INFINITY: u32 = 1000000;
 
 fn main() {
     let n: usize = read();
-    let mut g: Vec<Vec<usize>> = vec![vec![]; n];
-    let mut color: Vec<Option<usize>> = vec![None; n];
-    for _ in 0..m {
-        let person_index1: usize = read();
-        let person_index2: usize = read();
-        g[person_index1].push(person_index2);
-        g[person_index2].push(person_index1);
+    let mut g: Vec<Vec<u32>> = vec![vec![]; n];
+    let mut color: Vec<u32> = vec![WHITE; n];
+    for index_i in 0..n {
+        for index_j in 0..n {
+            let number: i32 = read();
+            if number == -1 {
+                g[index_i][index_j] = INFINITY;
+            } else {
+                g[index_i][index_j] = number as u32;
+            }
+        }
     }
     assign_color(&mut color, &mut g, n);
     let question_count: usize = read();
