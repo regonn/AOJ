@@ -52,15 +52,19 @@ fn dijkstra(m: &mut Vec<Vec<u32>>, n: usize) {
             }
         }
     }
+    for index in 0..n {
+        print!("{} ", index);
+        println!("{}", d[index]);
+    }
 }
 
 fn main() {
     let n: usize = read();
     let mut m: Vec<Vec<u32>> = vec![vec![INFINITY; MAX]; MAX];
-    for index_n in 0..n {
+    for _ in 0..n {
         let u: usize = read();
         let k: usize = read();
-        for index_k in 0..k {
+        for _ in 0..k {
             let v: usize = read();
             let c: u32 = read();
             m[u][v] = c;
