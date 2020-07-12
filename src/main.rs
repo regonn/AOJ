@@ -14,61 +14,55 @@ fn read<T: FromStr>() -> T {
     token.parse().ok().expect("failed to parse token")
 }
 
-const WHITE: u32 = 0;
-const GRAY: u32 = 1;
-const BLACK: u32 = 2;
-const INFINITY: u32 = 1000000;
-const MAX: usize = 10000;
+const N: usize = 8;
+const FREE: i8 = -1;
+const NOT_FREE: i8 = 1;
 
-fn dijkstra(adj: &mut Vec<Vec<(usize, u32)>>, n: usize) {
-    let mut pq: VecDeque<(i32, u32)> = VecDeque::new();
-    let mut d: Vec<u32> = vec![INFINITY; MAX];
-    let mut color: Vec<u32> = vec![WHITE; MAX];
+fn printBoard(x: Vec<Vec<bool>>, row: Vec<i8>) {}
 
-    d[0] = 0;
-    pq.push_back((0, 0));
-    color[0] = GRAY;
-
-    while pq.len() > 0 {
-        let (first, u): (i32, u32) = pq.pop_front().unwrap();
-
-        color[u as usize] = GRAY;
-
-        if (d[u as usize] as i32) < first * -1 {
-            continue;
-        }
-
-        for j in 0..adj[u as usize].len() {
-            let (v, second) = adj[u as usize][j];
-            if color[v] == BLACK {
-                continue;
-            }
-            if d[v] > d[u as usize] + second {
-                d[v] = d[u as usize] + second;
-                pq.push_back(((d[v] as i32 * -1), v as u32));
-                color[v as usize] = GRAY;
-            }
-        }
+fn recursive(
+    i: usize,
+    x: &mut Vec<Vec<bool>>,
+    row: &mut Vec<i8>,
+    col: &mut Vec<i8>,
+    dpos: &mut Vec<i8>,
+    dneg: &mut Vec<i8>,
+) {
+    if i == N {
+        printBoard(*x, *row);
+        return;
     }
 
-    for index in 0..n {
-        print!("{} ", index);
-        println!("{}", d[index]);
+    for j in 0..N {
+        if col[j] == NOT_FREE || dpos[i + j] == NOT_FREE || dneg[i - j + N - 1] == NOT_FREE {
+            continue;
+        }
+        row[i] = j as i8;
+        col[j] = NOT_FREE;
+        dpos[i + j] = NOT_FREE;
+        dneg[i - j + N - 1] = NOT_FREE;
+        recursive(i + 1, x, row, col, dpos, dneg);
+        row[i] = FREE;
+        col[j] = FREE;
+        dpos[i + j] = FREE;
+        dneg[i - j + N - 1] = FREE;
     }
 }
 
 fn main() {
-    let n: usize = read();
-    let mut adj: Vec<Vec<(usize, u32)>> = vec![vec![]; MAX];
-    for _ in 0..n {
-        let u: usize = read();
-        let k: usize = read();
-        for _ in 0..k {
-            let v: usize = read();
-            let c: u32 = read();
-            adj[u].push((v, c));
-        }
+    let mut row: Vec<i8> = vec![FREE; N];
+    let mut col: Vec<i8> = vec![FREE; N];
+    let mut dpos: Vec<i8> = vec![FREE; N];
+    let mut dneg: Vec<i8> = vec![FREE; N];
+    let mut x: Vec<Vec<bool>> = vec![vec![false; N]; N];
+
+    let k: usize = read();
+
+    for _ in 0..k {
+        let r: usize = read();
+        let c: usize = read();
+        x[r][c] = true;
     }
 
-    dijkstra(&mut adj, n);
+    recursive(0);
 }
