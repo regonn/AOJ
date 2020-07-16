@@ -17,7 +17,25 @@ const N: usize = 3;
 const N2: usize = 9;
 
 struct Puzzle {
-    f: Vec<u8>,
+    f: Vec<usize>,
+    space: usize,
 }
 
-fn main() {}
+fn main() {
+    let mut init_numbers:Vec<usize> = vec![0; N2];
+    let mut init_space: usize = 0;
+    for i in 0..N2 {
+        let number: usize = read();
+        init_numbers[i] =number;
+
+        if init_numbers[i] == 0 {
+            init_numbers[i] = N2;
+            init_space = i;
+        }
+    }
+
+    let mut puzzle = Puzzle{
+        f: init_numbers,
+        space: init_space
+    };
+}
