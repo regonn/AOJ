@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use std::io::*;
 use std::str::FromStr;
 
@@ -19,14 +20,21 @@ const N2: usize = 9;
 struct Puzzle {
     f: Vec<usize>,
     space: usize,
+    path: Option<String>,
+}
+
+fn bfs(puzzle: &mut Puzzle) -> &str {
+    let mut q: VecDeque<Puzzle> = VecDeque::new();
+    let mut v: Vec<(Puzzle, bool)> = vec![];
+    return "";
 }
 
 fn main() {
-    let mut init_numbers:Vec<usize> = vec![0; N2];
+    let mut init_numbers: Vec<usize> = vec![0; N2];
     let mut init_space: usize = 0;
     for i in 0..N2 {
         let number: usize = read();
-        init_numbers[i] =number;
+        init_numbers[i] = number;
 
         if init_numbers[i] == 0 {
             init_numbers[i] = N2;
@@ -34,8 +42,12 @@ fn main() {
         }
     }
 
-    let mut puzzle = Puzzle{
+    let mut puzzle = Puzzle {
         f: init_numbers,
-        space: init_space
+        space: init_space,
+        path: None,
     };
+
+    let ans: &str = bfs(&mut puzzle);
+    println!("{}", ans);
 }
