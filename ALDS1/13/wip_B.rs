@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::io::*;
 use std::str::FromStr;
@@ -24,8 +25,11 @@ struct Puzzle {
 }
 
 fn bfs(puzzle: &mut Puzzle) -> &str {
-    let mut q: VecDeque<Puzzle> = VecDeque::new();
-    let mut v: Vec<(Puzzle, bool)> = vec![];
+    let mut q: VecDeque<&mut Puzzle> = VecDeque::new();
+    let mut v: HashMap<Puzzle, bool> = HashMap<Puzzle, bool>::new();
+    puzzle.path = Some(("").to_string());
+    q.push_back(puzzle);
+    v.insert(puzzle, true);
     return "";
 }
 
