@@ -18,6 +18,7 @@ fn read<T: FromStr>() -> T {
 const N: usize = 3;
 const N2: usize = 9;
 
+#[derive(PartialEq, Eq, Hash)]
 struct Puzzle {
     f: Vec<usize>,
     space: usize,
@@ -26,7 +27,7 @@ struct Puzzle {
 
 fn bfs(puzzle: &mut Puzzle) -> &str {
     let mut q: VecDeque<&mut Puzzle> = VecDeque::new();
-    let mut v: HashMap<Puzzle, bool> = HashMap<Puzzle, bool>::new();
+    let mut v: HashMap<&mut Puzzle, bool> = HashMap::new();
     puzzle.path = Some(("").to_string());
     q.push_back(puzzle);
     v.insert(puzzle, true);
