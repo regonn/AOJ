@@ -27,10 +27,14 @@ struct Puzzle {
 
 fn bfs(puzzle: &mut Puzzle) -> &str {
     let mut q: VecDeque<&mut Puzzle> = VecDeque::new();
-    let mut v: HashMap<&mut Puzzle, bool> = HashMap::new();
+    let mut v = HashMap::new();
     puzzle.path = Some(("").to_string());
+    let v_key: String = puzzle.f.iter().map(|&s| s.to_string()).collect::<String>();
     q.push_back(puzzle);
-    v.insert(puzzle, true);
+    v.insert(v_key, true);
+    while q.len() > 0 {
+        let u = q.pop_front();
+    }
     return "";
 }
 
