@@ -25,7 +25,16 @@ struct Puzzle {
     path: Option<String>,
 }
 
-fn bfs(puzzle: &mut Puzzle) -> &str {
+fn is_target(puzzle: &Puzzle) -> bool {
+    for index in 0..N2 {
+        if puzzle.f[index] != (index + 1) {
+            return false;
+        }
+    }
+    return true;
+}
+
+fn bfs(puzzle: &mut Puzzle) -> String {
     let mut q: VecDeque<&mut Puzzle> = VecDeque::new();
     let mut v = HashMap::new();
     puzzle.path = Some(("").to_string());
@@ -33,9 +42,15 @@ fn bfs(puzzle: &mut Puzzle) -> &str {
     q.push_back(puzzle);
     v.insert(v_key, true);
     while q.len() > 0 {
-        let u = q.pop_front();
+        let u: &Puzzle = q.pop_front().unwrap();
+        if is_target(u) {
+            return u.path.as_ref().unwrap().to_string();
+        }
+        let sx = u.space / N;
+        let sy = u.space % N;
+        for r in 0..4 {}
     }
-    return "";
+    return "".to_string();
 }
 
 fn main() {
@@ -57,6 +72,6 @@ fn main() {
         path: None,
     };
 
-    let ans: &str = bfs(&mut puzzle);
+    let ans: String = bfs(&mut puzzle);
     println!("{}", ans);
 }
