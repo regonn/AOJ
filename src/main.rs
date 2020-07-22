@@ -18,6 +18,10 @@ fn read<T: FromStr>() -> T {
 const N: usize = 3;
 const N2: usize = 9;
 
+const dx: [i32; 4] = [-1, 0, 1, 0];
+const dy: [i32; 4] = [0, -1, 0, 1];
+const dir: [char; 4] = ['u', 'l', 'd', 'r'];
+
 #[derive(PartialEq, Eq, Hash)]
 struct Puzzle {
     f: Vec<usize>,
@@ -42,13 +46,20 @@ fn bfs(puzzle: &mut Puzzle) -> String {
     q.push_back(puzzle);
     v.insert(v_key, true);
     while q.len() > 0 {
-        let u: &Puzzle = q.pop_front().unwrap();
-        if is_target(u) {
-            return u.path.as_ref().unwrap().to_string();
+        let u_puzzle: &Puzzle = q.pop_front().unwrap();
+        if is_target(u_puzzle) {
+            return u_puzzle.path.as_ref().unwrap().to_string();
         }
-        let sx = u.space / N;
-        let sy = u.space % N;
-        for r in 0..4 {}
+        let sx = u_puzzle.space / N;
+        let sy = u_puzzle.space % N;
+        for r in 0..4 {
+            let tx: i32 = sx as i32 + dx[r];
+            let ty: i32 = sy as i32 + dy[r];
+            if tx < 0 || ty < 0 || tx >= N as i32 || ty >= N as i32 {
+                continue;
+            }
+            let v_puzzle = u_puzzle;
+        }
     }
     return "".to_string();
 }
