@@ -18,18 +18,18 @@ fn read<T: FromStr>() -> T {
 const N: usize = 3;
 const N2: usize = 9;
 
-const dx: [i32; 4] = [-1, 0, 1, 0];
-const dy: [i32; 4] = [0, -1, 0, 1];
-const dir: [char; 4] = ['u', 'l', 'd', 'r'];
+const DX: [i32; 4] = [-1, 0, 1, 0];
+const DY: [i32; 4] = [0, -1, 0, 1];
+const DIR: [char; 4] = ['u', 'l', 'd', 'r'];
 
-#[derive(PartialEq, Eq, Hash)]
+#[derive(PartialEq, Eq, Hash, Clone)]
 struct Puzzle {
     f: Vec<usize>,
     space: usize,
     path: Option<String>,
 }
 
-fn is_target(puzzle: &Puzzle) -> bool {
+fn is_target(puzzle: Puzzle) -> bool {
     for index in 0..N2 {
         if puzzle.f[index] != (index + 1) {
             return false;
@@ -38,27 +38,38 @@ fn is_target(puzzle: &Puzzle) -> bool {
     return true;
 }
 
-fn bfs(puzzle: &mut Puzzle) -> String {
-    let mut q: VecDeque<&mut Puzzle> = VecDeque::new();
+fn bfs(puzzle: Puzzle) -> String {
+    let mut q: VecDeque<Puzzle> = VecDeque::new();
     let mut v = HashMap::new();
-    puzzle.path = Some(("").to_string());
-    let v_key: String = puzzle.f.iter().map(|&s| s.to_string()).collect::<String>();
-    q.push_back(puzzle);
+    let mut new_puzzle = puzzle;
+    new_puzzle.path = Some(("").to_string());
+    let v_key: String = new_puzzle
+        .f
+        .iter()
+        .map(|&s| s.to_string())
+        .collect::<String>();
+    q.push_back(new_puzzle);
     v.insert(v_key, true);
     while q.len() > 0 {
-        let u_puzzle: &Puzzle = q.pop_front().unwrap();
-        if is_target(u_puzzle) {
+        let u_puzzle: Puzzle = q.pop_front().unwrap();
+        if is_target(u_puzzle.clone()) {
             return u_puzzle.path.as_ref().unwrap().to_string();
         }
         let sx = u_puzzle.space / N;
         let sy = u_puzzle.space % N;
         for r in 0..4 {
-            let tx: i32 = sx as i32 + dx[r];
-            let ty: i32 = sy as i32 + dy[r];
+            let tx: i32 = sx as i32 + DX[r];
+            let ty: i32 = sy as i32 + DY[r];
             if tx < 0 || ty < 0 || tx >= N as i32 || ty >= N as i32 {
                 continue;
             }
-            let v_puzzle = u_puzzle;
+            let mut v_puzzle = u_puzzle.clone();
+            let mut temp = v_puzzle.f[u_puzzle.space];
+            v_puzzle.f[tx as usize * N + ty as usize] = temp;
+
+            // v_puzzle
+            //     .f
+            //     .swap(u_puzzle.space, tx as usize * N + ty as usize)
         }
     }
     return "".to_string();
@@ -83,6 +94,6 @@ fn main() {
         path: None,
     };
 
-    let ans: String = bfs(&mut puzzle);
+    let ans: String = bfs(puzzle);
     println!("{}", ans);
 }
