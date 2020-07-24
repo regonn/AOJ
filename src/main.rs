@@ -38,16 +38,16 @@ fn is_target(puzzle: Puzzle) -> bool {
     return true;
 }
 
+fn puzzle_key(puzzle: Puzzle) -> String {
+    return puzzle.f.iter().map(|&s| s.to_string()).collect::<String>();
+}
+
 fn bfs(puzzle: Puzzle) -> String {
     let mut q: VecDeque<Puzzle> = VecDeque::new();
     let mut v = HashMap::new();
     let mut new_puzzle = puzzle;
     new_puzzle.path = Some(("").to_string());
-    let v_key: String = new_puzzle
-        .f
-        .iter()
-        .map(|&s| s.to_string())
-        .collect::<String>();
+    let v_key: String = puzzle_key(new_puzzle.clone());
     q.push_back(new_puzzle);
     v.insert(v_key, true);
     while q.len() > 0 {
@@ -64,8 +64,15 @@ fn bfs(puzzle: Puzzle) -> String {
                 continue;
             }
             let mut v_puzzle = u_puzzle.clone();
-            let mut temp = v_puzzle.f[u_puzzle.space];
+            let temp = v_puzzle.f[u_puzzle.space];
+            v_puzzle.f[u_puzzle.space] = v_puzzle.f[tx as usize * N + ty as usize];
             v_puzzle.f[tx as usize * N + ty as usize] = temp;
+            v_puzzle.space = tx as usize * N + ty as usize;
+            let v_puzzle_key: String = puzzle_key(v_puzzle.clone());
+            let v_bool: &bool = v.get(&v_puzzle_key).unwrap();
+            if !*v_bool {
+                v.insert(v_puzzle_key, true);
+            }
 
             // v_puzzle
             //     .f
