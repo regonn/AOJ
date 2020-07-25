@@ -49,6 +49,7 @@ fn bfs(puzzle: Puzzle) -> String {
     new_puzzle.path = Some(("").to_string());
     let v_key: String = puzzle_key(new_puzzle.clone());
     q.push_back(new_puzzle);
+    println!("{}", v_key);
     v.insert(v_key, true);
     while q.len() > 0 {
         let u_puzzle: Puzzle = q.pop_front().unwrap();
@@ -69,8 +70,15 @@ fn bfs(puzzle: Puzzle) -> String {
             v_puzzle.f[tx as usize * N + ty as usize] = temp;
             v_puzzle.space = tx as usize * N + ty as usize;
             let v_puzzle_key: String = puzzle_key(v_puzzle.clone());
-            let v_bool: &bool = v.get(&v_puzzle_key).unwrap();
-            if !*v_bool {
+            let v_clone = v.clone();
+            println!("{}", v_puzzle_key);
+            let v_bool_option: Option<&bool> = v_clone.get(&v_puzzle_key);
+            let mut v_bool = &false;
+            if v_bool_option != None {
+                v_bool = v_bool_option.unwrap();
+            }
+
+            if !v_bool {
                 v.insert(v_puzzle_key, true);
             }
 
