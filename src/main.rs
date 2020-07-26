@@ -20,13 +20,13 @@ const N2: usize = 9;
 
 const DX: [i32; 4] = [-1, 0, 1, 0];
 const DY: [i32; 4] = [0, -1, 0, 1];
-const DIR: [char; 4] = ['u', 'l', 'd', 'r'];
+const DIR: [&str; 4] = [&"u", &"l", &"d", &"r"];
 
 #[derive(PartialEq, Eq, Hash, Clone)]
 struct Puzzle {
     f: Vec<usize>,
     space: usize,
-    path: Option<String>,
+    path: String,
 }
 
 fn is_target(puzzle: Puzzle) -> bool {
@@ -45,16 +45,14 @@ fn puzzle_key(puzzle: Puzzle) -> String {
 fn bfs(puzzle: Puzzle) -> String {
     let mut q: VecDeque<Puzzle> = VecDeque::new();
     let mut v = HashMap::new();
-    let mut new_puzzle = puzzle;
-    new_puzzle.path = Some(("").to_string());
+    let new_puzzle = puzzle;
     let v_key: String = puzzle_key(new_puzzle.clone());
     q.push_back(new_puzzle);
-    println!("{}", v_key);
     v.insert(v_key, true);
     while q.len() > 0 {
         let u_puzzle: Puzzle = q.pop_front().unwrap();
         if is_target(u_puzzle.clone()) {
-            return u_puzzle.path.as_ref().unwrap().to_string();
+            return u_puzzle.path;
         }
         let sx = u_puzzle.space / N;
         let sy = u_puzzle.space % N;
@@ -65,13 +63,12 @@ fn bfs(puzzle: Puzzle) -> String {
                 continue;
             }
             let mut v_puzzle = u_puzzle.clone();
-            let temp = v_puzzle.f[u_puzzle.space];
-            v_puzzle.f[u_puzzle.space] = v_puzzle.f[tx as usize * N + ty as usize];
-            v_puzzle.f[tx as usize * N + ty as usize] = temp;
+            v_puzzle
+                .f
+                .swap(u_puzzle.space, tx as usize * N + ty as usize);
             v_puzzle.space = tx as usize * N + ty as usize;
             let v_puzzle_key: String = puzzle_key(v_puzzle.clone());
             let v_clone = v.clone();
-            println!("{}", v_puzzle_key);
             let v_bool_option: Option<&bool> = v_clone.get(&v_puzzle_key);
             let mut v_bool = &false;
             if v_bool_option != None {
@@ -80,11 +77,9 @@ fn bfs(puzzle: Puzzle) -> String {
 
             if !v_bool {
                 v.insert(v_puzzle_key, true);
+                v_puzzle.path = v_puzzle.path + DIR[r];
+                q.push_back(v_puzzle);
             }
-
-            // v_puzzle
-            //     .f
-            //     .swap(u_puzzle.space, tx as usize * N + ty as usize)
         }
     }
     return "".to_string();
@@ -103,12 +98,12 @@ fn main() {
         }
     }
 
-    let mut puzzle = Puzzle {
+    let puzzle = Puzzle {
         f: init_numbers,
         space: init_space,
-        path: None,
+        path: "".to_string(),
     };
 
     let ans: String = bfs(puzzle);
-    println!("{}", ans);
+    println!("{}", ans.len());
 }
