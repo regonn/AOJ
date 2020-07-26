@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::HashSet;
 use std::collections::VecDeque;
 use std::io::*;
 use std::str::FromStr;
@@ -44,11 +44,11 @@ fn puzzle_key(puzzle: Puzzle) -> String {
 
 fn bfs(puzzle: Puzzle) -> String {
     let mut q: VecDeque<Puzzle> = VecDeque::new();
-    let mut v = HashMap::new();
+    let mut v = HashSet::new();
     let new_puzzle = puzzle;
     let v_key: String = puzzle_key(new_puzzle.clone());
     q.push_back(new_puzzle);
-    v.insert(v_key, true);
+    v.insert(v_key);
     while q.len() > 0 {
         let u_puzzle: Puzzle = q.pop_front().unwrap();
         if is_target(u_puzzle.clone()) {
@@ -68,15 +68,9 @@ fn bfs(puzzle: Puzzle) -> String {
                 .swap(u_puzzle.space, tx as usize * N + ty as usize);
             v_puzzle.space = tx as usize * N + ty as usize;
             let v_puzzle_key: String = puzzle_key(v_puzzle.clone());
-            let v_clone = v.clone();
-            let v_bool_option: Option<&bool> = v_clone.get(&v_puzzle_key);
-            let mut v_bool = &false;
-            if v_bool_option != None {
-                v_bool = v_bool_option.unwrap();
-            }
 
-            if !v_bool {
-                v.insert(v_puzzle_key, true);
+            if !v.contains(&v_puzzle_key) {
+                v.insert(v_puzzle_key);
                 v_puzzle.path = v_puzzle.path + DIR[r];
                 q.push_back(v_puzzle);
             }
