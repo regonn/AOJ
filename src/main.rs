@@ -15,8 +15,9 @@ fn read<T: FromStr>() -> T {
     token.parse().ok().expect("failed to parse token")
 }
 
-const N: usize = 3;
-const N2: usize = 9;
+const N: usize = 4;
+const N2: usize = 16;
+const LIMIT: usize = 100;
 
 const DX: [i32; 4] = [-1, 0, 1, 0];
 const DY: [i32; 4] = [0, -1, 0, 1];
@@ -26,23 +27,20 @@ const DIR: [&str; 4] = [&"u", &"l", &"d", &"r"];
 struct Puzzle {
     f: Vec<usize>,
     space: usize,
-    path: String,
+    md: usize,
+    cost: usize,
 }
 
-fn is_target(puzzle: Puzzle) -> bool {
-    for index in 0..N2 {
-        if puzzle.f[index] != (index + 1) {
-            return false;
-        }
-    }
-    return true;
+struct State {
+    puzzle: Puzzle,
+    estimated: usize,
 }
 
 fn puzzle_key(puzzle: Puzzle) -> String {
     return puzzle.f.iter().map(|&s| s.to_string()).collect::<String>();
 }
 
-fn bfs(puzzle: Puzzle) -> String {
+fn astar(puzzle: Puzzle) -> usize {
     let mut q: VecDeque<Puzzle> = VecDeque::new();
     let mut v = HashSet::new();
     let new_puzzle = puzzle;
