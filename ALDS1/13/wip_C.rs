@@ -40,12 +40,27 @@ fn puzzle_key(puzzle: Puzzle) -> String {
     return puzzle.f.iter().map(|&s| s.to_string()).collect::<String>();
 }
 
-fn astar(puzzle: Puzzle) -> usize {
-    let mut q: VecDeque<Puzzle> = VecDeque::new();
+fn get_all_md(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
+    let mut sum = 0;
+    for i in 0..N2 {
+        if puzzle.f[i] == N2 {
+            continue;
+        }
+        sum += mdt[i][puzzle.f[i] -1];
+    }
+    return sum
+}
+
+fn astar(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
+    let mut pq: VecDeque<State> = VecDeque::new();
     let mut v = HashSet::new();
     let new_puzzle = puzzle;
     let v_key: String = puzzle_key(new_puzzle.clone());
-    q.push_back(new_puzzle);
+    let initial: State = State {
+        puzzle: puzzle,
+        estimated: get_all_md(puzzle, mdt),
+    }
+    pq.push_back();
     v.insert(v_key);
     while q.len() > 0 {
         let u_puzzle: Puzzle = q.pop_front().unwrap();
@@ -79,7 +94,13 @@ fn astar(puzzle: Puzzle) -> usize {
 
 fn main() {
     let mut init_numbers: Vec<usize> = vec![0; N2];
+    let mut mdt: Vec<Vec<usize>> = vec![vec![0; N2]; N2];
     let mut init_space: usize = 0;
+    for i in 0..N2 {
+        for j in 0..N2 {
+            mdt[i][j] = abs(i / N -j /N) + abs(i % N -j % N);
+        }
+    }
     for i in 0..N2 {
         let number: usize = read();
         init_numbers[i] = number;
@@ -96,6 +117,6 @@ fn main() {
         path: "".to_string(),
     };
 
-    let ans: String = bfs(puzzle);
+    let ans: usize = astar(puzzle, mdt);
     println!("{}", ans.len());
 }
