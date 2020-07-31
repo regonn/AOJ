@@ -46,9 +46,9 @@ fn get_all_md(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
         if puzzle.f[i] == N2 {
             continue;
         }
-        sum += mdt[i][puzzle.f[i] -1];
+        sum += mdt[i][puzzle.f[i] - 1];
     }
-    return sum
+    return sum;
 }
 
 fn astar(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
@@ -59,14 +59,13 @@ fn astar(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
     let initial: State = State {
         puzzle: puzzle,
         estimated: get_all_md(puzzle, mdt),
-    }
-    pq.push_back();
+    };
+    pq.push_back(initial);
     v.insert(v_key);
-    while q.len() > 0 {
-        let u_puzzle: Puzzle = q.pop_front().unwrap();
-        if is_target(u_puzzle.clone()) {
-            return u_puzzle.path;
-        }
+    while pq.len() > 0 {
+        let st: State = pq.pop_front().unwrap();
+        let u_puzzle = st.puzzle;
+
         let sx = u_puzzle.space / N;
         let sy = u_puzzle.space % N;
         for r in 0..4 {
@@ -98,7 +97,8 @@ fn main() {
     let mut init_space: usize = 0;
     for i in 0..N2 {
         for j in 0..N2 {
-            mdt[i][j] = abs(i / N -j /N) + abs(i % N -j % N);
+            mdt[i][j] = ((i / N) as i32 - (j / N) as i32).abs() as usize
+                + ((i % N) as i32 - (j % N) as i32).abs() as usize;
         }
     }
     for i in 0..N2 {
@@ -114,9 +114,10 @@ fn main() {
     let puzzle = Puzzle {
         f: init_numbers,
         space: init_space,
-        path: "".to_string(),
+        md: 0,
+        cost: 0,
     };
 
     let ans: usize = astar(puzzle, mdt);
-    println!("{}", ans.len());
+    println!("{}", ans);
 }
