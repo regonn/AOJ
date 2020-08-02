@@ -66,6 +66,13 @@ fn astar(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
         let st: State = pq.pop_front().unwrap();
         let u_puzzle = st.puzzle;
 
+        if u_puzzle.md == 0 {
+            return u_puzzle.cost;
+        }
+
+        let u_key: String = puzzle_key(u_puzzle.clone());
+        v.insert(u_key);
+
         let sx = u_puzzle.space / N;
         let sy = u_puzzle.space % N;
         for r in 0..4 {
@@ -75,20 +82,26 @@ fn astar(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
                 continue;
             }
             let mut v_puzzle = u_puzzle.clone();
-            v_puzzle
-                .f
-                .swap(u_puzzle.space, tx as usize * N + ty as usize);
+            v_puzzle.md -=
+                mdt[tx as usize * N + ty as usize][v_puzzle.f[tx as usize * N + ty as usize] - 1];
+            v_puzzle.md +=
+                mdt[sx as usize * N + sy as usize][v_puzzle.f[tx as usize * N + ty as usize] - 1];
+            v_puzzle.f.swap(sx * N + sy, tx as usize * N + ty as usize);
             v_puzzle.space = tx as usize * N + ty as usize;
             let v_puzzle_key: String = puzzle_key(v_puzzle.clone());
 
             if !v.contains(&v_puzzle_key) {
+                v_puzzle.cost += 1;
+                let news: State = State {
+                    puzzle: v_puzzle,
+                    estimated: v_puzzle.cost + v_puzzle.md,
+                };
                 v.insert(v_puzzle_key);
-                v_puzzle.path = v_puzzle.path + DIR[r];
-                q.push_back(v_puzzle);
+                pq.push_back(news);
             }
         }
     }
-    return "".to_string();
+    return 0;
 }
 
 fn main() {
