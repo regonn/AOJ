@@ -54,14 +54,15 @@ fn get_all_md(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
 fn astar(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
     let mut pq: VecDeque<State> = VecDeque::new();
     let mut v = HashSet::new();
-    let new_puzzle = puzzle;
+    let new_puzzle = puzzle.clone();
     let v_key: String = puzzle_key(new_puzzle.clone());
     let initial: State = State {
-        puzzle: puzzle,
-        estimated: get_all_md(puzzle, mdt),
+        puzzle: puzzle.clone(),
+        estimated: get_all_md(puzzle.clone(), mdt.clone()),
     };
     pq.push_back(initial);
     v.insert(v_key);
+
     while pq.len() > 0 {
         let st: State = pq.pop_front().unwrap();
         let u_puzzle = st.puzzle;
@@ -78,9 +79,11 @@ fn astar(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
         for r in 0..4 {
             let tx: i32 = sx as i32 + DX[r];
             let ty: i32 = sy as i32 + DY[r];
+
             if tx < 0 || ty < 0 || tx >= N as i32 || ty >= N as i32 {
                 continue;
             }
+
             let mut v_puzzle = u_puzzle.clone();
             v_puzzle.md -=
                 mdt[tx as usize * N + ty as usize][v_puzzle.f[tx as usize * N + ty as usize] - 1];
@@ -91,10 +94,12 @@ fn astar(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
             let v_puzzle_key: String = puzzle_key(v_puzzle.clone());
 
             if !v.contains(&v_puzzle_key) {
+                let v_puzzle_md: usize = v_puzzle.md;
                 v_puzzle.cost += 1;
+                let v_puzzle_cost = v_puzzle.cost;
                 let news: State = State {
                     puzzle: v_puzzle,
-                    estimated: v_puzzle.cost + v_puzzle.md,
+                    estimated: v_puzzle_cost + v_puzzle_md,
                 };
                 v.insert(v_puzzle_key);
                 pq.push_back(news);
