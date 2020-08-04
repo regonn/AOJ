@@ -37,7 +37,11 @@ struct State {
 }
 
 fn puzzle_key(puzzle: Puzzle) -> String {
-    return puzzle.f.iter().map(|&s| s.to_string()).collect::<String>();
+    return puzzle
+        .f
+        .iter()
+        .map(|&s| s.to_string() + ",")
+        .collect::<String>();
 }
 
 fn get_all_md(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
@@ -54,10 +58,11 @@ fn get_all_md(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
 fn astar(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
     let mut pq: VecDeque<State> = VecDeque::new();
     let mut v = HashSet::new();
-    let new_puzzle = puzzle.clone();
+    let mut new_puzzle = puzzle.clone();
     let v_key: String = puzzle_key(new_puzzle.clone());
+    new_puzzle.md = get_all_md(puzzle.clone(), mdt.clone());
     let initial: State = State {
-        puzzle: puzzle.clone(),
+        puzzle: new_puzzle,
         estimated: get_all_md(puzzle.clone(), mdt.clone()),
     };
     pq.push_back(initial);
@@ -92,6 +97,7 @@ fn astar(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
             v_puzzle.f.swap(sx * N + sy, tx as usize * N + ty as usize);
             v_puzzle.space = tx as usize * N + ty as usize;
             let v_puzzle_key: String = puzzle_key(v_puzzle.clone());
+            println!("{}", v_puzzle_key);
 
             if !v.contains(&v_puzzle_key) {
                 let v_puzzle_md: usize = v_puzzle.md;
