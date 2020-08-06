@@ -107,23 +107,26 @@ fn astar(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
         let u_key: String = puzzle_key(u_puzzle.clone());
         v.insert(u_key);
 
-        let sx = u_puzzle.space / N;
-        let sy = u_puzzle.space % N;
+        let space_x = u_puzzle.space / N;
+        let space_y = u_puzzle.space % N;
         for r in 0..4 {
-            let tx: i32 = sx as i32 + DX[r];
-            let ty: i32 = sy as i32 + DY[r];
+            let target_x: i32 = space_x as i32 + DX[r];
+            let target_y: i32 = space_y as i32 + DY[r];
 
-            if tx < 0 || ty < 0 || tx >= N as i32 || ty >= N as i32 {
+            if target_x < 0 || target_y < 0 || target_x >= N as i32 || target_y >= N as i32 {
                 continue;
             }
 
             let mut v_puzzle = u_puzzle.clone();
-            v_puzzle.md -=
-                mdt[tx as usize * N + ty as usize][v_puzzle.f[tx as usize * N + ty as usize] - 1];
-            v_puzzle.md +=
-                mdt[sx as usize * N + sy as usize][v_puzzle.f[tx as usize * N + ty as usize] - 1];
-            v_puzzle.f.swap(sx * N + sy, tx as usize * N + ty as usize);
-            v_puzzle.space = tx as usize * N + ty as usize;
+            v_puzzle.md -= mdt[target_x as usize * N + target_y as usize]
+                [v_puzzle.f[target_x as usize * N + target_y as usize] - 1];
+            v_puzzle.md += mdt[space_x as usize * N + space_y as usize]
+                [v_puzzle.f[target_x as usize * N + target_y as usize] - 1];
+            v_puzzle.f.swap(
+                space_x * N + space_y,
+                target_x as usize * N + target_y as usize,
+            );
+            v_puzzle.space = target_x as usize * N + target_y as usize;
             let v_puzzle_key: String = puzzle_key(v_puzzle.clone());
             let mut v_puzzle_cost = v_puzzle.cost;
             if !v.contains(&v_puzzle_key) {
