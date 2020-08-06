@@ -1,5 +1,6 @@
+use std::cmp::Ordering;
+use std::collections::BinaryHeap;
 use std::collections::HashSet;
-use std::collections::VecDeque;
 use std::io::*;
 use std::str::FromStr;
 
@@ -17,11 +18,9 @@ fn read<T: FromStr>() -> T {
 
 const N: usize = 4;
 const N2: usize = 16;
-const LIMIT: usize = 100;
 
-const DX: [i32; 4] = [-1, 0, 1, 0];
-const DY: [i32; 4] = [0, -1, 0, 1];
-const DIR: [&str; 4] = [&"u", &"l", &"d", &"r"];
+const DX: [i32; 4] = [0, -1, 0, 1];
+const DY: [i32; 4] = [1, 0, -1, 0];
 
 #[derive(PartialEq, Eq, Hash, Clone)]
 struct Puzzle {
@@ -31,9 +30,37 @@ struct Puzzle {
     cost: usize,
 }
 
+#[derive(Eq)]
 struct State {
     puzzle: Puzzle,
     estimated: usize,
+}
+
+impl Ord for State {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match self.estimated.cmp(&other.estimated) {
+            Ordering::Equal => Ordering::Equal,
+            Ordering::Less => Ordering::Greater,
+            Ordering::Greater => Ordering::Less,
+        }
+    }
+}
+
+impl PartialOrd for State {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        match Some(self.cmp(other)) {
+            Some(Ordering::Equal) => Some(Ordering::Equal),
+            Some(Ordering::Less) => Some(Ordering::Greater),
+            Some(Ordering::Greater) => Some(Ordering::Less),
+            None => None,
+        }
+    }
+}
+
+impl PartialEq for State {
+    fn eq(&self, other: &Self) -> bool {
+        self.estimated == other.estimated
+    }
 }
 
 fn puzzle_key(puzzle: Puzzle) -> String {
@@ -56,7 +83,7 @@ fn get_all_md(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
 }
 
 fn astar(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
-    let mut pq: VecDeque<State> = VecDeque::new();
+    let mut pq: BinaryHeap<State> = BinaryHeap::new();
     let mut v = HashSet::new();
     let mut new_puzzle = puzzle.clone();
     let v_key: String = puzzle_key(new_puzzle.clone());
@@ -65,11 +92,12 @@ fn astar(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
         puzzle: new_puzzle,
         estimated: get_all_md(puzzle.clone(), mdt.clone()),
     };
-    pq.push_back(initial);
+    pq.push(initial);
     v.insert(v_key);
 
     while pq.len() > 0 {
-        let st: State = pq.pop_front().unwrap();
+        let st: State = pq.pop().unwrap();
+
         let u_puzzle = st.puzzle;
 
         if u_puzzle.md == 0 {
@@ -97,18 +125,16 @@ fn astar(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
             v_puzzle.f.swap(sx * N + sy, tx as usize * N + ty as usize);
             v_puzzle.space = tx as usize * N + ty as usize;
             let v_puzzle_key: String = puzzle_key(v_puzzle.clone());
-            println!("{}", v_puzzle_key);
-
+            let mut v_puzzle_cost = v_puzzle.cost;
             if !v.contains(&v_puzzle_key) {
                 let v_puzzle_md: usize = v_puzzle.md;
+                v_puzzle_cost += 1;
                 v_puzzle.cost += 1;
-                let v_puzzle_cost = v_puzzle.cost;
                 let news: State = State {
                     puzzle: v_puzzle,
                     estimated: v_puzzle_cost + v_puzzle_md,
                 };
-                v.insert(v_puzzle_key);
-                pq.push_back(news);
+                pq.push(news);
             }
         }
     }
