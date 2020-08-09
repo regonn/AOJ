@@ -82,67 +82,7 @@ fn get_all_md(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
     return sum;
 }
 
-fn astar(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
-    let mut pq: BinaryHeap<State> = BinaryHeap::new();
-    let mut v = HashSet::new();
-    let mut new_puzzle = puzzle.clone();
-    let v_key: String = puzzle_key(new_puzzle.clone());
-    new_puzzle.md = get_all_md(puzzle.clone(), mdt.clone());
-    let initial: State = State {
-        puzzle: new_puzzle,
-        estimated: get_all_md(puzzle.clone(), mdt.clone()),
-    };
-    pq.push(initial);
-    v.insert(v_key);
-
-    while pq.len() > 0 {
-        let st: State = pq.pop().unwrap();
-
-        let u_puzzle = st.puzzle;
-
-        if u_puzzle.md == 0 {
-            return u_puzzle.cost;
-        }
-
-        let u_key: String = puzzle_key(u_puzzle.clone());
-        v.insert(u_key);
-
-        let space_x = u_puzzle.space / N;
-        let space_y = u_puzzle.space % N;
-        for r in 0..4 {
-            let target_x: i32 = space_x as i32 + DX[r];
-            let target_y: i32 = space_y as i32 + DY[r];
-
-            if target_x < 0 || target_y < 0 || target_x >= N as i32 || target_y >= N as i32 {
-                continue;
-            }
-
-            let mut v_puzzle = u_puzzle.clone();
-            v_puzzle.md -= mdt[target_x as usize * N + target_y as usize]
-                [v_puzzle.f[target_x as usize * N + target_y as usize] - 1];
-            v_puzzle.md += mdt[space_x as usize * N + space_y as usize]
-                [v_puzzle.f[target_x as usize * N + target_y as usize] - 1];
-            v_puzzle.f.swap(
-                space_x * N + space_y,
-                target_x as usize * N + target_y as usize,
-            );
-            v_puzzle.space = target_x as usize * N + target_y as usize;
-            let v_puzzle_key: String = puzzle_key(v_puzzle.clone());
-            let mut v_puzzle_cost = v_puzzle.cost;
-            if !v.contains(&v_puzzle_key) {
-                let v_puzzle_md: usize = v_puzzle.md;
-                v_puzzle_cost += 1;
-                v_puzzle.cost += 1;
-                let news: State = State {
-                    puzzle: v_puzzle,
-                    estimated: v_puzzle_cost + v_puzzle_md,
-                };
-                pq.push(news);
-            }
-        }
-    }
-    return 0;
-}
+fn iterative_deepening(){}
 
 fn main() {
     let mut init_numbers: Vec<usize> = vec![0; N2];
