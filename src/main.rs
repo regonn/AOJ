@@ -21,13 +21,13 @@ const N2: usize = 16;
 
 const DX: [i32; 4] = [0, -1, 0, 1];
 const DY: [i32; 4] = [1, 0, -1, 0];
+const DIR: [&str; 4] = [&"r", &"u", &"l", &"d"];
 
 #[derive(PartialEq, Eq, Hash, Clone)]
 struct Puzzle {
     f: Vec<usize>,
     space: usize,
     md: usize,
-    cost: usize,
 }
 
 #[derive(Eq)]
@@ -82,7 +82,26 @@ fn get_all_md(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
     return sum;
 }
 
-fn iterative_deepening(){}
+fn dfs(depth: i32, prev: i32, puzzle: &mut Puzzle) -> bool {
+    return false;
+}
+
+fn iterative_deepening(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> String {
+    let mut new_puzzle = puzzle.clone();
+    new_puzzle.md = get_all_md(puzzle.clone(), mdt);
+    let mut path: Vec<usize> = vec![];
+
+    for limit in new_puzzle.md..100 {
+        if dfs(0, -100, &mut new_puzzle) {
+            let mut answer: String = String::new();
+            for index in 0..limit {
+                answer += DIR[path[index]];
+            }
+        }
+    }
+
+    return "".to_string();
+}
 
 fn main() {
     let mut init_numbers: Vec<usize> = vec![0; N2];
@@ -108,9 +127,8 @@ fn main() {
         f: init_numbers,
         space: init_space,
         md: 0,
-        cost: 0,
     };
 
-    let ans: usize = astar(puzzle, mdt);
-    println!("{}", ans);
+    let ans: String = iterative_deepening(puzzle, mdt);
+    println!("{}", ans.len());
 }
