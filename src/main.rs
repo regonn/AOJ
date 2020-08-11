@@ -1,6 +1,6 @@
+use std::cmp::max;
+use std::cmp::min;
 use std::cmp::Ordering;
-use std::collections::BinaryHeap;
-use std::collections::HashSet;
 use std::io::*;
 use std::str::FromStr;
 
@@ -82,21 +82,64 @@ fn get_all_md(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
     return sum;
 }
 
-fn dfs(depth: i32, prev: i32, puzzle: &mut Puzzle) -> bool {
+fn dfs(
+    depth: i32,
+    prev: i32,
+    puzzle: &mut Puzzle,
+    limit: usize,
+    mdt: Vec<Vec<usize>>,
+    path: &mut Vec<usize>,
+) -> bool {
+    if puzzle.md == 0 {
+        return true;
+    }
+    if depth + puzzle.md as i32 > limit as i32 {
+        return false;
+    }
+    let space_x = puzzle.space / N;
+    let space_y = puzzle.space % N;
+
+    for r in 0..4 {
+        let target_x: i32 = space_x as i32 + DX[r];
+        let target_y: i32 = space_y as i32 + DY[r];
+        if target_x < 0 || target_y < 0 || target_x >= N as i32 || target_y >= N as i32 {
+            continue;
+        }
+        if max(prev, r as i32) - min(prev, r as i32) == 2 {
+            continue;
+        }
+        let mut tmp_puzzle = puzzle.clone();
+        puzzle.md -= mdt[target_x as usize * N + target_y as usize]
+            [puzzle.f[target_x as usize * N + target_y as usize] - 1];
+        puzzle.md +=
+            mdt[space_x * N + space_y][puzzle.f[target_x as usize * N + target_y as usize] - 1];
+        puzzle.f.swap(
+            target_x as usize * N + target_y as usize,
+            space_x * N + space_y,
+        );
+        puzzle.space = target_x as usize * N + target_y as usize;
+        if dfs(depth + 1, r as i32, puzzle, limit, mdt.clone(), path) {
+            path[depth as usize] = r;
+            return true;
+        }
+        puzzle = tmp_puzzle;
+    }
+
     return false;
 }
 
 fn iterative_deepening(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> String {
     let mut new_puzzle = puzzle.clone();
-    new_puzzle.md = get_all_md(puzzle.clone(), mdt);
-    let mut path: Vec<usize> = vec![];
+    new_puzzle.md = get_all_md(puzzle.clone(), mdt.clone());
+    let mut path: Vec<usize> = vec![0; N];
 
     for limit in new_puzzle.md..100 {
-        if dfs(0, -100, &mut new_puzzle) {
+        if dfs(0, -100, &mut new_puzzle, limit, mdt.clone(), &mut path) {
             let mut answer: String = String::new();
             for index in 0..limit {
                 answer += DIR[path[index]];
             }
+            return answer;
         }
     }
 
