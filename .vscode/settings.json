@@ -31,7 +31,7 @@
         "applescript": "osascript",
         "clojure": "lein exec",
         "haxe": "haxe --cwd $dirWithoutTrailingSlash --run $fileNameWithoutExt",
-        "rust": "cd $dir && rustup run 1.17.0 rustc $fileName -o $dir/out && cat input | $dir/out",
+        "rust": "cd $dir && rustup run 1.17.0 rustc $fileName -o $dir/out && cat input | time -p $dir/out",
         "racket": "racket",
         "scheme": "csi -script",
         "ahk": "autohotkey",

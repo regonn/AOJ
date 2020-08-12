@@ -1,6 +1,5 @@
 use std::cmp::max;
 use std::cmp::min;
-use std::cmp::Ordering;
 use std::io::*;
 use std::str::FromStr;
 
@@ -30,48 +29,7 @@ struct Puzzle {
     md: usize,
 }
 
-#[derive(Eq)]
-struct State {
-    puzzle: Puzzle,
-    estimated: usize,
-}
-
-impl Ord for State {
-    fn cmp(&self, other: &Self) -> Ordering {
-        match self.estimated.cmp(&other.estimated) {
-            Ordering::Equal => Ordering::Equal,
-            Ordering::Less => Ordering::Greater,
-            Ordering::Greater => Ordering::Less,
-        }
-    }
-}
-
-impl PartialOrd for State {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        match Some(self.cmp(other)) {
-            Some(Ordering::Equal) => Some(Ordering::Equal),
-            Some(Ordering::Less) => Some(Ordering::Greater),
-            Some(Ordering::Greater) => Some(Ordering::Less),
-            None => None,
-        }
-    }
-}
-
-impl PartialEq for State {
-    fn eq(&self, other: &Self) -> bool {
-        self.estimated == other.estimated
-    }
-}
-
-fn puzzle_key(puzzle: Puzzle) -> String {
-    return puzzle
-        .f
-        .iter()
-        .map(|&s| s.to_string() + ",")
-        .collect::<String>();
-}
-
-fn get_all_md(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> usize {
+fn get_all_md(puzzle: Puzzle, mdt: &Vec<Vec<usize>>) -> usize {
     let mut sum = 0;
     for i in 0..N2 {
         if puzzle.f[i] == N2 {
@@ -87,7 +45,7 @@ fn dfs(
     prev: i32,
     puzzle: &mut Puzzle,
     limit: usize,
-    mdt: Vec<Vec<usize>>,
+    mdt: &Vec<Vec<usize>>,
     path: &mut Vec<usize>,
 ) -> bool {
     if puzzle.md == 0 {
@@ -108,7 +66,7 @@ fn dfs(
         if max(prev, r as i32) - min(prev, r as i32) == 2 {
             continue;
         }
-        let mut tmp_puzzle = puzzle.clone();
+        let tmp_puzzle = puzzle.clone();
         puzzle.md -= mdt[target_x as usize * N + target_y as usize]
             [puzzle.f[target_x as usize * N + target_y as usize] - 1];
         puzzle.md +=
@@ -118,23 +76,26 @@ fn dfs(
             space_x * N + space_y,
         );
         puzzle.space = target_x as usize * N + target_y as usize;
-        if dfs(depth + 1, r as i32, puzzle, limit, mdt.clone(), path) {
+        if dfs(depth + 1, r as i32, puzzle, limit, mdt, path) {
             path[depth as usize] = r;
             return true;
         }
-        puzzle = tmp_puzzle;
+
+        puzzle.f = tmp_puzzle.f;
+        puzzle.md = tmp_puzzle.md;
+        puzzle.space = tmp_puzzle.space;
     }
 
     return false;
 }
 
-fn iterative_deepening(puzzle: Puzzle, mdt: Vec<Vec<usize>>) -> String {
+fn iterative_deepening(puzzle: Puzzle, mdt: &Vec<Vec<usize>>) -> String {
     let mut new_puzzle = puzzle.clone();
-    new_puzzle.md = get_all_md(puzzle.clone(), mdt.clone());
-    let mut path: Vec<usize> = vec![0; N];
+    new_puzzle.md = get_all_md(puzzle.clone(), mdt);
+    let mut path: Vec<usize> = vec![0; 100];
 
     for limit in new_puzzle.md..100 {
-        if dfs(0, -100, &mut new_puzzle, limit, mdt.clone(), &mut path) {
+        if dfs(0, -100, &mut new_puzzle, limit, mdt, &mut path) {
             let mut answer: String = String::new();
             for index in 0..limit {
                 answer += DIR[path[index]];
@@ -172,6 +133,6 @@ fn main() {
         md: 0,
     };
 
-    let ans: String = iterative_deepening(puzzle, mdt);
+    let ans: String = iterative_deepening(puzzle, &mdt);
     println!("{}", ans.len());
 }
