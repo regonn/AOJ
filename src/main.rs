@@ -14,6 +14,15 @@ fn read<T: FromStr>() -> T {
 }
 
 fn check(fields: &Vec<Vec<char>>, target: &Vec<Vec<char>>, i: usize, j: usize) -> bool {
+    let row_count = target.len();
+    let col_count = target[0].len();
+    for index_i in 0..row_count {
+        for index_j in 0..col_count {
+            if fields[i + index_i][j + index_j] != target[index_i][index_j] {
+                return false;
+            }
+        }
+    }
     return true;
 }
 
@@ -41,7 +50,7 @@ fn main() {
 
     for i in 0..(h - r + 1) {
         for j in 0..(w - c + 1) {
-            if check(&fields, &target, i,j){
+            if check(&fields, &target, i, j) {
                 println!("{} {}", i, j);
             }
         }
