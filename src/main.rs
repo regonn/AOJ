@@ -56,3 +56,5 @@ fn main() {
         }
     }
 }
+
+// https://ei1333.github.io/luzhiled/snippets/string/rolling-hash.html
