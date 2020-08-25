@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 use std::io::*;
 use std::str::FromStr;
 
@@ -13,232 +12,120 @@ fn read<T: FromStr>() -> T {
         .collect();
     token.parse().ok().expect("failed to parse token")
 }
-
-fn match_rolling_hash_2d(
-    s: &Vec<Vec<char>>,
-    p: &Vec<Vec<char>>,
-    MOD: isize,
-    base: isize,
-) -> HashSet<(usize, usize)> {
-    let H = s.len();
-    let W = s[0].len();
-    let R = p.len();
-    let C = p[0].len();
-    if H < R || W < C {
-        return HashSet::new();
+fn gen_suffix_array(a: &Vec<usize>) -> Vec<usize> {
+    let mut s = a.clone();
+    for s in &mut s {
+        *s += 1;
     }
-
-    let mut Ph = ModInt::new(0, MOD);
-    let base_v = ModInt::pow_mod(base, C as isize, MOD);
-    for row in p {
-        for &p in row {
-            Ph *= base;
-            Ph += p as isize;
-        }
+    s.push(0);
+    let n = s.len();
+    let m = s.iter().max().unwrap() + 1;
+    // k = 0
+    let mut cnt = vec![0; m];
+    let mut p = vec![0; n];
+    let mut c = vec![0; n];
+    for s in &s {
+        cnt[*s] += 1;
     }
-    let Ph = Ph;
-
-    let mut ret = HashSet::new();
-
-    let mut h_h = Vec::new();
-    for i in 0..H {
-        h_h.push(Vec::new());
-        let mut h = ModInt::new(0, MOD);
-        for j in 0..C {
-            h *= base;
-            h += s[i][j] as isize;
+    for i in 1..m {
+        cnt[i] += cnt[i - 1];
+    }
+    for i in 0..n {
+        let c = s[i];
+        cnt[c] -= 1;
+        p[cnt[c]] = i;
+    }
+    c[p[0]] = 0;
+    let mut kind = 1;
+    for i in 1..n {
+        if s[p[i]] != s[p[i - 1]] {
+            kind += 1;
         }
-        for j in 0..W - C + 1 {
-            h_h[i].push(h);
-            let k = j + C;
-            if k == W {
-                break;
+        c[p[i]] = kind - 1;
+    }
+    let mut k = 1;
+    while k < n {
+        let mut next_p = vec![0; n];
+        for i in 0..n {
+            next_p[i] = (p[i] + n - k) % n;
+        }
+        let mut cnt = vec![0; kind];
+        for &p in &next_p {
+            cnt[c[p]] += 1;
+        }
+        for i in 1..kind {
+            cnt[i] += cnt[i - 1];
+        }
+        for &pn in next_p.iter().rev() {
+            let k = c[pn];
+            cnt[k] -= 1;
+            p[cnt[k]] = pn;
+        }
+        let mut next_c = vec![0; n];
+        next_c[p[0]] = 0;
+        kind = 1;
+        for i in 1..n {
+            let prev = (c[p[i - 1]], c[(p[i - 1] + k) % n]);
+            let cur = (c[p[i]], c[(p[i] + k) % n]);
+            if prev != cur {
+                kind += 1;
             }
-            h -= ModInt::pow_mod(base, C as isize - 1, MOD) * (s[i][j] as isize);
-            h *= base;
-            h += s[i][k] as isize;
+            next_c[p[i]] = kind - 1;
         }
+        c = next_c;
+        k <<= 1;
     }
-
-    for j in 0..W - C + 1 {
-        let mut h = ModInt::new(0, MOD);
-        for i in 0..R {
-            h *= base_v;
-            h += h_h[i][j];
-        }
-        for i in 0..H - R + 1 {
-            if h == Ph {
-                ret.insert((i, j));
-            }
-            let k = i + R;
-            if k == H {
-                break;
-            }
-            h -= ModInt::pow_mod(base_v, R as isize - 1, MOD) * h_h[i][j].n;
-            h *= base_v;
-            h += h_h[k][j];
-        }
-    }
-    ret
+    p
 }
 
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use std::io::Write;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
-struct ModInt {
-    n: isize,
-    MOD: isize,
-}
-impl ModInt {
-    fn new(n: isize, MOD: isize) -> ModInt {
-        ModInt {
-            n: (n % MOD + MOD) % MOD,
-            MOD: MOD,
-        }
-    }
-    fn pow_mod(a: isize, b: isize, MOD: isize) -> isize {
-        if b == 0 {
-            return 1;
-        }
-        if b % 2 == 1 {
-            return a * ModInt::pow_mod(a, b - 1, MOD) % MOD;
-        }
-        ModInt::pow_mod(a * a % MOD, b / 2, MOD)
-    }
-    fn inv(self) -> ModInt {
-        let n = ModInt::pow_mod(self.n, self.MOD - 2, self.MOD);
-        ModInt::new(n, self.MOD)
-    }
-}
-
-impl Add for ModInt {
-    type Output = ModInt;
-    fn add(self, other: ModInt) -> ModInt {
-        ModInt::new(self.n + other.n, self.MOD)
-    }
-}
-impl Add<isize> for ModInt {
-    type Output = ModInt;
-    fn add(self, other: isize) -> ModInt {
-        ModInt::new(self.n + other, self.MOD)
-    }
-}
-
-impl AddAssign for ModInt {
-    fn add_assign(&mut self, other: ModInt) {
-        self.n = (self.n + other.n) % self.MOD;
-    }
-}
-impl AddAssign<isize> for ModInt {
-    fn add_assign(&mut self, other: isize) {
-        self.n = (self.n + other) % self.MOD;
-    }
-}
-
-impl Sub for ModInt {
-    type Output = ModInt;
-    fn sub(self, other: ModInt) -> ModInt {
-        ModInt::new(self.n - other.n, self.MOD)
-    }
-}
-impl Sub<isize> for ModInt {
-    type Output = ModInt;
-    fn sub(self, other: isize) -> ModInt {
-        ModInt::new(self.n - other, self.MOD)
-    }
-}
-impl SubAssign for ModInt {
-    fn sub_assign(&mut self, other: ModInt) {
-        self.n = (self.n + self.MOD - other.n % self.MOD) % self.MOD;
-    }
-}
-impl SubAssign<isize> for ModInt {
-    fn sub_assign(&mut self, other: isize) {
-        self.n = (self.n + self.MOD - other % self.MOD) % self.MOD;
-    }
-}
-
-impl Mul for ModInt {
-    type Output = ModInt;
-    fn mul(self, other: ModInt) -> ModInt {
-        ModInt::new(self.n * other.n, self.MOD)
-    }
-}
-impl Mul<isize> for ModInt {
-    type Output = ModInt;
-    fn mul(self, other: isize) -> ModInt {
-        ModInt::new(self.n * other, self.MOD)
-    }
-}
-impl MulAssign for ModInt {
-    fn mul_assign(&mut self, other: ModInt) {
-        self.n = self.n * (other.n % self.MOD) % self.MOD;
-    }
-}
-impl MulAssign<isize> for ModInt {
-    fn mul_assign(&mut self, other: isize) {
-        let o = (other % self.MOD + self.MOD) % self.MOD;
-        self.n = self.n * o % self.MOD;
-    }
-}
-
-impl Div for ModInt {
-    type Output = ModInt;
-    fn div(self, other: ModInt) -> ModInt {
-        other.inv() * self
-    }
-}
-impl Div<isize> for ModInt {
-    type Output = ModInt;
-    fn div(self, other: isize) -> ModInt {
-        ModInt::new(other, self.MOD).inv() * self
-    }
-}
-impl DivAssign for ModInt {
-    fn div_assign(&mut self, other: ModInt) {
-        *self *= other.inv()
-    }
-}
-impl DivAssign<isize> for ModInt {
-    fn div_assign(&mut self, other: isize) {
-        *self *= ModInt::pow_mod(other, self.MOD - 2, self.MOD);
+fn convert(c: char) -> usize {
+    if '0' <= c && c <= '9' {
+        c.to_digit(10).unwrap() as usize
+    } else if 'a' <= c && c <= 'z' {
+        c as usize - 'a' as usize + 10
+    } else {
+        c as usize - 'A' as usize + 36
     }
 }
 
 fn main() {
-    let h: usize = read();
-    let w: usize = read();
-    let mut fields: Vec<Vec<char>> = vec![vec!['0'; w]; h];
-    for i in 0..h {
+    let out = std::io::stdout();
+    let mut out = std::io::BufWriter::new(out.lock());
+
+    let line_string: String = read();
+    let s: Vec<char> = line_string.chars().collect();
+    let q: usize = read();
+
+    let mut a: Vec<Vec<char>> = vec![vec![]; q];
+
+    for i in 0..q {
         let line_string: String = read();
         let chars: Vec<char> = line_string.chars().collect();
-        for (index, char_data) in chars.iter().enumerate() {
-            fields[i][index] = *char_data;
-        }
-    }
-    let r: usize = read();
-    let c: usize = read();
-    let mut target: Vec<Vec<char>> = vec![vec!['0'; c]; r];
-    for i in 0..r {
-        let line_string: String = read();
-        let chars: Vec<char> = line_string.chars().collect();
-        for (index, char_data) in chars.iter().enumerate() {
-            target[i][index] = *char_data;
-        }
+        a[i] = chars;
     }
 
-    let ans1 = match_rolling_hash_2d(&fields, &target, 1_000_000_007, 129);
-    let ans2 = match_rolling_hash_2d(&fields, &target, 1_000_000_009, 129 + 34);
-
-    let mut ans = ans1.intersection(&ans2).collect::<Vec<_>>();
-    ans.sort();
-    if ans.len() > 0 {
-        println!(
-            "{}",
-            ans.iter()
-                .map(|a| format!("{} {}", a.0, a.1))
-                .collect::<Vec<_>>()
-                .join("\n")
-        );
+    let s_map: Vec<usize> = s.into_iter().map(convert).collect();
+    let su = gen_suffix_array(&s_map);
+    let s = s_map;
+    for a in a {
+        let a: Vec<usize> = a.into_iter().map(convert).collect();
+        let mut l = 0;
+        let mut r = su.len() - 1;
+        while r - l > 1 {
+            let m = (l + r) / 2;
+            if *a.as_slice() <= s[su[m]..] {
+                r = m;
+            } else {
+                l = m;
+            }
+        }
+        let ans = if s.len() - su[r] >= a.len() && *a.as_slice() == s[su[r]..(su[r] + a.len())] {
+            1
+        } else {
+            0
+        };
+        writeln!(out, "{}", ans).unwrap();
     }
 }
