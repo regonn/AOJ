@@ -15,42 +15,30 @@ fn read<T: FromStr>() -> T {
 
 fn main() {
     let n: u32 = read();
-    let w: u32 = read();
-    let mut v_i: Vec<u32> = vec![0; n as usize];
-    let mut w_i: Vec<u32> = vec![0; n as usize];
-    let mut v_per_w_i: Vec<f32> = vec![0.0; n as usize];
-    let mut knapsack_w: u32 = 0;
-    let mut knapsack_v: f32 = 0.0;
+    let mut w: f64 = read();
+
+    let mut vw: Vec<Vec<f64>> = vec![vec![0.0; 2]; n as usize];
+
     for i in 0..n {
-        let current_v: u32 = read();
-        let current_w: u32 = read();
-        v_i[i as usize] = current_v;
-        w_i[i as usize] = current_w;
-        v_per_w_i[i as usize] = current_v as f32 / current_w as f32;
+        let current_v: f64 = read();
+        let current_w: f64 = read();
+        vw[i as usize][0] = current_v;
+        vw[i as usize][1] = current_w;
     }
-    while knapsack_w < w {
-        let mut value_i: Option<usize> = None;
-        let mut value: f32 = 0.0;
-        for i in 0..n {
-            if w_i[i as usize] > 0 && value < v_per_w_i[i as usize] {
-                value_i = Some(i as usize);
-                value = v_per_w_i[i as usize];
-            }
-        }
-        if value_i.is_none() {
-            break;
+
+    vw.sort_by(|a, b| (b[0] / b[1]).partial_cmp(&(a[0] / a[1])).unwrap());
+
+    let mut ans: f64 = 0.0;
+
+    for i in 0..(n as usize) {
+        if w >= vw[i][1] {
+            w -= vw[i][1];
+            ans += vw[i][0];
         } else {
-            let i = value_i.unwrap();
-            let capacity = w - knapsack_w;
-            if capacity > w_i[i] {
-                knapsack_w += w_i[i];
-                w_i[i] -= w_i[i];
-                knapsack_v += v_i[i] as f32;
-            } else {
-                knapsack_w = w;
-                knapsack_v += v_per_w_i[i] * capacity as f32;
-            }
+            ans += vw[i][0] / vw[i][1] * w;
+            w = 0.0;
         }
     }
-    println!("{}", knapsack_v);
+
+    println!("{}", ans);
 }
