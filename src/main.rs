@@ -1,6 +1,30 @@
 use std::io::*;
 use std::str::FromStr;
 
+type NodeId = usize;
+
+struct Node {
+    id: NodeId,
+    parent: Option<NodeId>,
+    left: Option<NodeId>,
+    right: Option<NodeId>,
+    value: i64,
+}
+
+struct Tree {
+    root: Option<NodeId>,
+    nodes: Vec<Node>,
+}
+
+impl Tree {
+    fn new() -> Tree {
+        Tree {
+            root: None,
+            nodes: Vec::new(),
+        }
+    }
+}
+
 fn read<T: FromStr>() -> T {
     let stdin = stdin();
     let stdin = stdin.lock();
@@ -14,26 +38,6 @@ fn read<T: FromStr>() -> T {
 }
 
 fn main() {
-    let n: usize = read();
-    let mut st: Vec<(u32, u32)> = vec![(0, 0); n];
-    let mut time = 0;
-    let mut answer = 0;
-
-    for i in 0..n {
-        let s: u32 = read();
-        let t: u32 = read();
-        st[i] = (s, t)
-    }
-
-    st.sort_by_key(|key| (key.1, key.0));
-
-    for &(s, t) in &st {
-        if s < time {
-            continue;
-        }
-        time = t + 1;
-        answer += 1;
-    }
-
-    println!("{}", answer);
+    let s: String = read();
+    let s_chars: Vec<char> = s.chars().collect();
 }
