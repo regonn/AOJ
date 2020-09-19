@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::io::*;
 use std::str::FromStr;
 
@@ -8,7 +9,7 @@ struct Node {
     parent: Option<NodeId>,
     left: Option<NodeId>,
     right: Option<NodeId>,
-    value: i64,
+    value: String,
 }
 
 struct Tree {
@@ -22,6 +23,18 @@ impl Tree {
             root: None,
             nodes: Vec::new(),
         }
+    }
+
+    fn make_nodes(&mut self, value: String, parent: Option<NodeId>) {
+        let node = Node {
+            id: self.nodes.len(),
+            parent: parent,
+            value: value,
+            left: None,
+            right: None,
+        };
+
+        self.nodes.push(node)
     }
 }
 
@@ -40,4 +53,13 @@ fn read<T: FromStr>() -> T {
 fn main() {
     let s: String = read();
     let s_chars: Vec<char> = s.chars().collect();
+    let mut chars_count: HashMap<char, u32> = HashMap::new();
+    let mut chars_convert_map: HashMap<char, String> = HashMap::new();
+    let mut tree = Tree::new();
+    for c in s_chars {
+        let count = chars_count.entry(c).or_insert(0);
+        *count += 1;
+        println!("{}, {}", c, count)
+    }
+    tree.make_nodes(s, None);
 }
