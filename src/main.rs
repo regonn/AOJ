@@ -9,7 +9,8 @@ struct Node {
     parent: Option<NodeId>,
     left: Option<NodeId>,
     right: Option<NodeId>,
-    value: String,
+    value: u32,
+    target_char: Option<char>,
 }
 
 struct Tree {
@@ -25,16 +26,18 @@ impl Tree {
         }
     }
 
-    fn make_nodes(&mut self, value: String, parent: Option<NodeId>) {
-        let node = Node {
-            id: self.nodes.len(),
-            parent: parent,
-            value: value,
-            left: None,
-            right: None,
-        };
-
-        self.nodes.push(node)
+    fn make_nodes(&mut self, chars_count: HashMap<char, u32>) {
+        for (current_char, value) in chars_count {
+            let node = Node {
+                id: self.nodes.len(),
+                parent: None,
+                value: value,
+                target_char: Some(current_char),
+                left: None,
+                right: None,
+            };
+            self.nodes.push(node)
+        }
     }
 }
 
@@ -52,14 +55,15 @@ fn read<T: FromStr>() -> T {
 
 fn main() {
     let s: String = read();
-    let s_chars: Vec<char> = s.chars().collect();
     let mut chars_count: HashMap<char, u32> = HashMap::new();
-    let mut chars_convert_map: HashMap<char, String> = HashMap::new();
-    let mut tree = Tree::new();
+    let s_chars: Vec<char> = s.chars().collect();
     for c in s_chars {
         let count = chars_count.entry(c).or_insert(0);
         *count += 1;
         println!("{}, {}", c, count)
     }
-    tree.make_nodes(s, None);
+    let mut chars_convert_map: HashMap<char, String> = HashMap::new();
+    let mut tree = Tree::new();
+    tree.make_nodes(chars_count);
+    println!("{}", tree.nodes.len());
 }
