@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use std::io::*;
 use std::str::FromStr;
 
@@ -15,20 +16,30 @@ fn read<T: FromStr>() -> T {
 
 fn main() {
     let q: usize = read();
-    let mut a: Vec<i32> = vec![];
+    let mut a = VecDeque::new();
     for _ in 0..q {
         let query: i32 = read();
         match query {
             0 => {
+                let back: usize = read();
                 let number: i32 = read();
-                a.push(number);
+                if back == 0 {
+                    a.push_front(number);
+                } else {
+                    a.push_back(number);
+                }
             }
             1 => {
                 let index: usize = read();
                 println!("{}", a[index]);
             }
             2 => {
-                let _: i32 = a.pop().unwrap();
+                let back: usize = read();
+                if back == 0 {
+                    let _ = a.pop_front();
+                } else {
+                    let _ = a.pop_back();
+                }
             }
             _ => (),
         }
