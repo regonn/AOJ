@@ -13,30 +13,64 @@ fn read<T: FromStr>() -> T {
     token.parse().ok().expect("failed to parse token")
 }
 
+struct Element {
+    prev: usize,
+    next: usize,
+    value: i64,
+}
+
 fn main() {
     let q: usize = read();
-    let mut a: Vec<i64> = vec![];
+    let mut a: Vec<Element> = vec![];
     let mut index: usize = 0;
+    a.push(Element {
+        prev: 0,
+        next: 0,
+        value: 0,
+    });
 
     for _ in 0..q {
         let query: i32 = read();
         match query {
             0 => {
                 let number: i64 = read();
-                a.insert(index, number);
+                let prev_index: usize = a[index].prev;
+                let next_index: usize = index;
+                a.push(Element {
+                    prev: prev_index,
+                    next: next_index,
+                    value: number,
+                });
+                index = (a.len() - 1) as usize;
+                a[prev_index].next = index;
+                a[next_index].prev = index;
             }
             1 => {
                 let move_index: i64 = read();
-                index = (index as i64 + move_index) as usize;
+                if move_index > 0 {
+                    for _ in 0..move_index {
+                        index = a[index].next;
+                    }
+                } else {
+                    for _ in 0..(-move_index) {
+                        index = a[index].prev;
+                    }
+                }
             }
             2 => {
-                a.remove(index);
+                let prev_index = a[index].prev;
+                let next_index = a[index].next;
+                a[prev_index].next = next_index;
+                a[next_index].prev = prev_index;
+                index = next_index;
             }
             _ => (),
         }
     }
 
-    for number in a {
-        println!("{}", number);
+    index = a[0].next;
+    while index != 0 {
+        println!("{}", a[index].value);
+        index = a[index].next;
     }
 }
